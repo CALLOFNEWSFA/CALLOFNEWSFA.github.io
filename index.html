@@ -6,182 +6,154 @@
 <title>Call Of News</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: sans-serif;
-  background: linear-gradient(135deg, #000000, #1a0000);
-  color: white;
-  text-align: center;
+body{
+  margin:0;
+  font-family:tahoma;
+  background:black;
+  color:white;
 }
 
 /* هدر */
-.header {
-  padding: 20px;
-  font-size: 26px;
-  font-weight: bold;
-  color: red;
+.header{
+  text-align:center;
+  padding:20px;
+  font-size:22px;
+  color:red;
+  font-weight:bold;
+  border-bottom:1px solid red;
 }
 
-/* باکس ها */
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px;
+/* دکمه ورود */
+.join{
+  display:block;
+  margin:20px auto;
+  width:200px;
+  text-align:center;
+  padding:12px;
+  background:red;
+  color:white;
+  text-decoration:none;
+  border-radius:10px;
 }
 
-.box {
-  width: 250px;
-  height: 120px;
-  background: #111;
-  border: 2px solid red;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  cursor: pointer;
-  transition: 0.3s;
+/* باکس‌ها */
+.boxes{
+  display:flex;
+  gap:10px;
+  padding:10px;
+}
+.box{
+  flex:1;
+  background:#111;
+  padding:15px;
+  text-align:center;
+  border-radius:10px;
 }
 
-.box:hover {
-  background: red;
-  transform: scale(1.05);
+/* خبر */
+.news{
+  padding:15px;
+  border-top:1px solid red;
 }
 
-/* دکمه کانال */
-.channel-btn {
-  display: inline-block;
-  margin: 20px;
-  padding: 15px 25px;
-  background: red;
-  color: white;
-  border-radius: 10px;
-  text-decoration: none;
-  font-weight: bold;
+/* ویدیو */
+.reels{
+  height:100vh;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
+}
+.reel{
+  height:100vh;
+  position:relative;
+  scroll-snap-align:start;
+}
+video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
-/* فوتر */
-.footer {
-  margin-top: 40px;
-  padding: 15px;
-  color: gray;
+/* دکمه‌ها */
+.like{
+  position:absolute;
+  right:20px;
+  bottom:100px;
+  font-size:20px;
+}
+.sound{
+  position:absolute;
+  left:20px;
+  bottom:100px;
+  font-size:20px;
 }
 
-/* صفحه ویدیو (ریلز) */
-#reelsPage {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: black;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  z-index: 999;
-}
-
-.reel {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  scroll-snap-align: start;
-}
-
-.reel video {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-
-/* لایک */
-.like-btn {
-  position: absolute;
-  right: 20px;
-  bottom: 80px;
-  font-size: 24px;
-  background: rgba(0,0,0,0.5);
-  padding: 10px 15px;
-  border-radius: 50px;
-  cursor: pointer;
-}
-
-.like-btn.liked {
-  color: red;
-}
-
-/* دکمه بستن */
-.close-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: red;
-  padding: 10px 15px;
-  border-radius: 10px;
-  cursor: pointer;
-  z-index: 1000;
+.footer{
+  text-align:center;
+  padding:15px;
+  border-top:1px solid red;
+  color:red;
 }
 </style>
 
 </head>
 <body>
 
-<div class="header">چنل بزرگ کالاف نیوز</div>
-
-<div class="container">
-  <div class="box">اخبار جدید کالاف</div>
-  <div class="box">اتچمنت های کالاف</div>
-  <div class="box" onclick="openReels()">گیم پلی های خفن</div>
+<div class="header">
+چنل بزرگ کالاف نیوز
 </div>
 
-<a class="channel-btn" href="https://ble.ir/call_of_news_fa">ورود به کانال</a>
+<a class="join" href="https://ble.ir/call_of_news_fa">
+ورود به کانال
+</a>
 
-<div class="footer">Call Of News</div>
+<div class="boxes">
+  <div class="box">اخبار جدید کالاف</div>
+  <div class="box">اتچمنت های کالاف</div>
+  <div class="box">گیم پلی خفن</div>
+</div>
 
-<!-- صفحه گیم پلی -->
-<div id="reelsPage">
+<div class="news">
+📢 سیزن ۶ سال ۲۰۲۶ به زودی (۱۰ تیر) میاد 🔥
+</div>
 
-  <div class="close-btn" onclick="closeReels()">بستن</div>
+<!-- ویدیوها -->
+<div class="reels">
 
-  <!-- ویدیو 1 -->
-  <div class="reel">
-    <video src="video7.mp4" autoplay muted loop></video>
-    <div class="like-btn" onclick="like(this)">❤️ <span>0</span></div>
-  </div>
+<div class="reel">
+  <video id="v1" src="video7.mp4" autoplay muted loop></video>
 
-  <!-- بعدا اینجا ویدیو اضافه کن -->
-  <!--
-  <div class="reel">
-    <video src="video8.mp4" autoplay muted loop></video>
-    <div class="like-btn" onclick="like(this)">❤️ <span>0</span></div>
-  </div>
-  -->
+  <div class="sound" onclick="sound('v1',this)">🔇</div>
+  <div class="like" onclick="like(this)">❤️ <span>0</span></div>
+</div>
 
+<div class="reel">
+  <video id="v2" src="video8.mp4" autoplay muted loop></video>
+
+  <div class="sound" onclick="sound('v2',this)">🔇</div>
+  <div class="like" onclick="like(this)">❤️ <span>0</span></div>
+</div>
+
+</div>
+
+<div class="footer">
+Call Of News Channel
 </div>
 
 <script>
-function openReels(){
-  document.getElementById("reelsPage").style.display = "block";
+function like(el){
+  let num = el.querySelector("span");
+  num.innerText = parseInt(num.innerText)+1;
 }
 
-function closeReels(){
-  document.getElementById("reelsPage").style.display = "none";
-}
+function sound(id,btn){
+  let v = document.getElementById(id);
 
-function like(btn){
-  let span = btn.querySelector("span");
-  let count = parseInt(span.innerText);
-
-  if(btn.classList.contains("liked")){
-    btn.classList.remove("liked");
-    span.innerText = count - 1;
-  } else {
-    btn.classList.add("liked");
-    span.innerText = count + 1;
+  if(v.muted){
+    v.muted=false;
+    btn.innerText="🔊";
+  }else{
+    v.muted=true;
+    btn.innerText="🔇";
   }
 }
 </script>
