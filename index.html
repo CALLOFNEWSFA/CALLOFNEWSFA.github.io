@@ -11,151 +11,94 @@ body{
   font-family:tahoma;
   background:black;
   color:white;
-}
-
-/* هدر */
-.header{
-  text-align:center;
-  padding:20px;
-  font-size:22px;
-  color:red;
-  font-weight:bold;
-  border-bottom:1px solid red;
-}
-
-/* دکمه ورود */
-.join{
-  display:block;
-  margin:20px auto;
-  width:200px;
-  text-align:center;
-  padding:12px;
-  background:red;
-  color:white;
-  text-decoration:none;
-  border-radius:10px;
-}
-
-/* باکس‌ها */
-.boxes{
   display:flex;
-  gap:10px;
-  padding:10px;
-}
-.box{
-  flex:1;
-  background:#111;
-  padding:15px;
-  text-align:center;
-  border-radius:10px;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
 }
 
-/* خبر */
-.news{
-  padding:15px;
-  border-top:1px solid red;
-}
-
-/* ویدیو */
-.reels{
-  height:100vh;
-  overflow-y:scroll;
-  scroll-snap-type:y mandatory;
-}
-.reel{
-  height:100vh;
-  position:relative;
-  scroll-snap-align:start;
-}
-video{
+/* بکگراند گیمینگ */
+body::before{
+  content:"";
+  position:fixed;
   width:100%;
   height:100%;
-  object-fit:cover;
+  background:radial-gradient(circle at center, #300 0%, black 70%);
+  z-index:-1;
+}
+
+/* باکس اصلی */
+.container{
+  text-align:center;
+}
+
+/* عنوان */
+.title{
+  font-size:28px;
+  margin-bottom:30px;
+  color:red;
+  text-shadow:0 0 15px red;
 }
 
 /* دکمه‌ها */
-.like{
-  position:absolute;
-  right:20px;
-  bottom:100px;
-  font-size:20px;
-}
-.sound{
-  position:absolute;
-  left:20px;
-  bottom:100px;
-  font-size:20px;
+.btn{
+  display:block;
+  margin:10px auto;
+  padding:15px 25px;
+  width:250px;
+  border-radius:12px;
+  background:linear-gradient(45deg,#111,#300);
+  border:1px solid red;
+  color:white;
+  font-size:16px;
+  transition:0.2s;
+  cursor:pointer;
 }
 
+.btn:hover{
+  background:red;
+  transform:scale(1.05);
+}
+
+/* فوتر */
 .footer{
-  text-align:center;
-  padding:15px;
-  border-top:1px solid red;
-  color:red;
+  margin-top:20px;
+  font-size:12px;
+  color:#aaa;
 }
 </style>
-
 </head>
+
 <body>
 
-<div class="header">
-چنل بزرگ کالاف نیوز
-</div>
+<div class="container">
 
-<a class="join" href="https://ble.ir/call_of_news_fa">
-ورود به کانال
-</a>
+  <div class="title">🔥 چنل بزرگ کالاف نیوز 🔥</div>
 
-<div class="boxes">
-  <div class="box">اخبار جدید کالاف</div>
-  <div class="box">اتچمنت های کالاف</div>
-  <div class="box">گیم پلی خفن</div>
-</div>
+  <button class="btn" onclick="goGameplay()">🎮 گیم پلی های خفن</button>
 
-<div class="news">
-📢 سیزن ۶ سال ۲۰۲۶ به زودی (۱۰ تیر) میاد 🔥
-</div>
+  <button class="btn" onclick="goNews()">📰 اخبار کالاف</button>
 
-<!-- ویدیوها -->
-<div class="reels">
+  <button class="btn" onclick="openChannel()">🚀 ورود به کانال</button>
 
-<div class="reel">
-  <video id="v1" src="video7.mp4" autoplay muted loop></video>
+  <div class="footer">Call Of News</div>
 
-  <div class="sound" onclick="sound('v1',this)">🔇</div>
-  <div class="like" onclick="like(this)">❤️ <span>0</span></div>
-</div>
-
-<div class="reel">
-  <video id="v2" src="video8.mp4" autoplay muted loop></video>
-
-  <div class="sound" onclick="sound('v2',this)">🔇</div>
-  <div class="like" onclick="like(this)">❤️ <span>0</span></div>
-</div>
-
-</div>
-
-<div class="footer">
-Call Of News Channel
 </div>
 
 <script>
-function like(el){
-  let num = el.querySelector("span");
-  num.innerText = parseInt(num.innerText)+1;
+
+function goGameplay(){
+  window.location.href="gameplay.html";
 }
 
-function sound(id,btn){
-  let v = document.getElementById(id);
-
-  if(v.muted){
-    v.muted=false;
-    btn.innerText="🔊";
-  }else{
-    v.muted=true;
-    btn.innerText="🔇";
-  }
+function goNews(){
+  alert("به زودی اخبار خفن میاد 😈🔥");
 }
+
+function openChannel(){
+  window.location.href="https://ble.ir/call_of_news_fa";
+}
+
 </script>
 
 </body>
