@@ -38,7 +38,6 @@
         .news-content { padding: 30px; }
         .news-meta { display: flex; justify-content: space-between; font-size: 13px; color: #ff1a1a; font-weight: bold; margin-bottom: 15px; align-items: center; }
         
-        /* برچسب زمان زمان زنده */
         .time-badge { background: rgba(255, 217, 0, 0.1); color: #ffd900; padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255, 217, 0, 0.3); font-size: 12px; }
 
         .news-card h3 { font-size: 20px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; text-align: left; font-family: 'Roboto', sans-serif; }
@@ -85,14 +84,15 @@
         <h1 class="main-title">اخبار کالاف دیوتی موبایل</h1>
         <p class="subtitle">سیزن جدید، پچ‌نوت‌ها و لیکیج‌های زنده CODM</p>
 
-        <div id="loading" class="loading">⚡ در حال دریافت خودکار اخبار سیزن جدید CODM...</div>
+        <div id="loading" class="loading">⚡ در حال دریافت و ترکیب اخبار زنده از چندین منبع معتبر...</div>
         <div class="news-feed" id="newsWrapper"></div>
     </div>
 
     <script>
-        const gamingNewsApi = "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s";
+        // اضافه کردن دو منبع خبری بزرگ بازی برای تنوع و تعداد بیشتر اخبار
+        const source1 = "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s";
+        const source2 = "https://api.rss2json.com/v1/api.json?rss_url=https://www.eurogamer.net/feed/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s";
 
-        // تابع هوشمند برای محاسبه و تبدیل تاریخ انتشار به زمان فارسی روان
         function getRelativeTime(dateString) {
             const now = new Date();
             const postDate = new Date(dateString);
@@ -113,14 +113,24 @@
             const loading = document.getElementById('loading');
 
             try {
-                const response = await fetch(gamingNewsApi);
-                const data = await response.json();
+                // دریافت همزمان اطلاعات از هر دو منبع جهت افزایش تعداد اخبار
+                const [res1, res2] = await Promise.all([fetch(source1), fetch(source2)]);
+                const data1 = await res1.json();
+                const data2 = await res2.json();
                 
-                if (data.items && data.items.length > 0) {
-                    let seasonFilter = data.items.filter(item => {
+                let allItems = [];
+                if (data1.items) allItems = allItems.concat(data1.items);
+                if (data2.items) allItems = allItems.concat(data2.items);
+
+                if (allItems.length > 0) {
+                    // مرتب‌سازی کل اخبار بر اساس جدیدترین زمان انتشار
+                    allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+                    // فیلتر هوشمند و دقیق روی کلمات کلیدی سیزن و کالاف موبایل
+                    let seasonFilter = allItems.filter(item => {
                         const title = item.title.toLowerCase();
-                        const desc = item.description.toLowerCase();
-                        return title.includes('season') || title.includes('update') || title.includes('leak') || title.includes('battle pass') || title.includes('duty') || title.includes('codm');
+                        const desc = (item.description || "").toLowerCase();
+                        return title.includes('season') || title.includes('update') || title.includes('leak') || title.includes('battle pass') || title.includes('duty') || title.includes('codm') || title.includes('warzone');
                     });
 
                     if (seasonFilter.length === 0) {
@@ -131,21 +141,21 @@
                     loading.style.display = 'none';
                     wrapper.innerHTML = '';
 
-                    seasonFilter.slice(0, 6).forEach((item, index) => {
+                    // نمایش تا سقف ۸ خبر داغ و بروز شده
+                    seasonFilter.slice(0, 8).forEach((item, index) => {
                         let imgUrl = item.enclosure?.link || item.thumbnail || "";
                         let imgHtml = "";
                         if (imgUrl && imgUrl.startsWith("http") && !imgUrl.includes("avatar") && !imgUrl.includes("ytimg")) {
                             imgHtml = `<img src="${imgUrl}" class="news-image" onerror="this.style.display='none'" alt="CODM Update">`;
                         }
 
-                        let fullDesc = item.description.replace(/<[^>]*>/g, '').trim();
+                        let fullDesc = (item.description || "").replace(/<[^>]*>/g, '').trim();
                         let displayTitle = item.title;
                         
                         if (!displayTitle.toLowerCase().includes("season") && !displayTitle.toLowerCase().includes("cod")) {
-                            displayTitle = "CODM New Season Intel: " + displayTitle;
+                            displayTitle = "CODM Intel: " + displayTitle;
                         }
 
-                        // دریافت زمان انتشار هر خبر به صورت زنده
                         const timeAgo = getRelativeTime(item.pubDate);
 
                         const card = document.createElement('div');
