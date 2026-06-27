@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Mobile Hub - کالاف نیوز</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght=600;800;900&family=Roboto:wght=400;700&family=Vazirmatn:wght=700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+  background-color: #030305; 
+  font-family: 'Roboto', sans-serif; 
+  color: #fff; 
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* افکت پس‌زمینه متحرک */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at 50% 30%, #251212 0%, #030305 70%);
+  z-index: -2;
+}
+
+.particles-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: radial-gradient(rgba(255, 26, 26, 0.15) 1px, transparent 0);
+  background-size: 40px 40px;
+  z-index: -1;
+  animation: bgMove 20s linear infinite;
+  opacity: 0.5;
+}
+
+@keyframes bgMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+/* هدر جدید با چیدمان وسط‌چین */
+header {
+  position: fixed; top: 0; left: 0; width: 100%; padding: 25px 4%;
+  display: flex; justify-content: center; align-items: center;
+  background: linear-gradient(to bottom, rgba(3, 3, 5, 0.95), transparent); 
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+  border-bottom: 1px solid rgba(255, 26, 26, 0.1);
+}
+
+/* نام کانال بزرگ در بالا وسط */
+.channel-logo {
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 38px;
+  font-weight: 900;
+  color: #ffffff;
+  direction: rtl;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+.channel-logo span {
+  color: #ff1a1a;
+  text-shadow: 0 0 20px rgba(255, 26, 26, 0.9), 0 0 40px rgba(255, 26, 26, 0.5);
+}
+
+/* کانتینر اصلی بخش تصاویر */
+.main-container {
+  position: relative; display: flex; height: calc(100vh - 140px); margin-top: 110px; padding: 0 20px;
+  perspective: 1000px;
+}
+
+/* استایل عکس‌های کناری */
+.img-side {
+  flex: 1; position: relative; height: 100%; cursor: pointer; overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.img-side img {
+  width: 100%; height: 100%; object-fit: cover; 
+  filter: grayscale(20%) brightness(80%);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* افکت هاور کارت‌ها */
+.img-side:hover {
+  border-color: rgba(255, 26, 26, 0.5);
+  box-shadow: 0 0 30px rgba(255, 26, 26, 0.2);
+  transform: translateY(-5px) rotateY(1deg);
+}
+.img-side:hover img { 
+  transform: scale(1.04); 
+  filter: grayscale(0%) brightness(100%);
+}
+
+/* متن روی عکس‌ها */
+.img-overlay-text {
+  position: absolute; bottom: 30px; right: 30px;
+  font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px; color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  opacity: 0.8; transition: all 0.3s;
+}
+.img-side:hover .img-overlay-text {
+  opacity: 1; color: #ff1a1a; transform: translateX(-5px);
+}
+
+/* بخش جداکننده وسط با محو شدگی کمتر */
+.blur-divider {
+  width: 40px; height: 100%; background: #030305; position: relative; z-index: 5; margin: 0 -20px;
+  box-shadow: 0 0 30px 20px #030305; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  pointer-events: none;
+}
+
+/* دکمه‌های دانلود وسط صفحه */
+.download-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; gap: 20px; z-index: 10; align-items: center;
+}
+.btn-download {
+  padding: 16px 35px; background: rgba(255, 26, 26, 0.85); color: white; border: 1px solid rgba(255,255,255,0.1);
+  font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 13px; border-radius: 4px;
+  cursor: pointer; box-shadow: 0 8px 25px rgba(255, 26, 26, 0.3); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  text-decoration: none; white-space: nowrap; text-align: center; width: 290px;
+  letter-spacing: 1px; backdrop-filter: blur(5px);
+  position: relative; overflow: hidden;
+}
+.btn-download::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
+}
+.btn-download:hover::before { left: 100%; }
+.btn-download:hover { 
+  transform: translateY(-3px); 
+  background-color: #ff1a1a; 
+  box-shadow: 0 12px 35px rgba(255, 26, 26, 0.6);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* تنظیمات ریسپانسیو اندروید (دقیقاً هم‌تراز کامپیوتر) */
+@media(max-width: 768px) {
+  header { padding: 15px 5%; }
+  .channel-logo { font-size: 26px; }
+  .main-container { height: calc(100vh - 140px); margin-top: 90px; display: flex; flex-direction: row; padding: 0 10px; }
+  .img-side { flex: 1; height: 100%; }
+  .blur-divider { width: 20px; margin: 0 -10px; box-shadow: 0 0 15px 10px #030305; }
+  .download-center { gap: 12px; }
+  .btn-download { width: 150px; padding: 12px 5px; font-size: 9px; letter-spacing: 0px; border-radius: 3px; }
+  .img-overlay-text { font-size: 13px; bottom: 15px; right: 15px; }
+}
+</style>
+</head>
+<body>
+
+<!-- سیستم ذرات متحرک بک‌گراند -->
+<div class="particles-bg"></div>
+
+<header>
+  <!-- نام کانال بزرگ، متمرکز و جذاب در بالا وسط -->
+  <div class="channel-logo">کالاف <span>نیوز</span></div>
+</header>
+
+<div class="main-container">
+
+  <!-- عکس اول: اخبار خودکار -->
+  <div class="img-side" onclick="location.href='news.html'">
+    <img src="1.jpg" alt="Warzone Section">
+    <div class="img-overlay-text">LIVE NEWS</div>
+  </div>
+  
+  <!-- خط محو وسط صفحه -->
+  <div class="blur-divider"></div>
+
+  <!-- عکس دوم: اتچمنت‌ها -->
+  <div class="img-side" onclick="location.href='attachment.html'">
+    <img src="2.jpg" alt="Attachments">
+    <div class="img-overlay-text">ATTACHMENTS</div>
+  </div>
+
+  <!-- دکمه‌های دانلود وسط صفحه -->
+  <div class="download-center">
+    <a href="https://play.google.com/store/apps/details?id=com.activision.callofduty.shooter" class="btn-download">COD Mobile for Android</a>
+    <a href="https://apps.apple.com/us/app/call-of-duty-mobile/id1287168438" class="btn-download">COD Mobile for iOS</a>
+  </div>
+
+</div>
+
+</body>
+</html>

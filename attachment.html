@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اتچمنت‌های کالاف دیوتی موبایل</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; }
+  body { background-color: #050505; color: #fff; padding: 20px; overflow-x: hidden; }
+
+  /* هدر و دکمه بازگشت */
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+  .btn-back {
+    padding: 8px 16px; background: transparent; color: #ff1a1a; border: 2px solid #ff1a1a;
+    border-radius: 4px; cursor: pointer; text-decoration: none; font-weight: bold; transition: all 0.3s;
+  }
+  .btn-back:hover { background: #ff1a1a; color: #fff; box-shadow: 0 0 10px #ff1a1a; }
+  
+  .page-title { font-family: 'Orbitron', 'Vazirmatn', sans-serif; font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(255,26,26,0.5); }
+
+  /* باکس جستجو */
+  .search-container { max-width: 60px 0; margin: 0 auto 30px auto; text-align: center; max-width: 500px; }
+  .search-box {
+    width: 100%; padding: 12px 20px; background: #111; border: 1px solid #333; border-radius: 25px;
+    color: #fff; font-size: 16px; outline: none; transition: all 0.3s; text-align: center;
+  }
+  .search-box:focus { border-color: #ff1a1a; box-shadow: 0 0 10px rgba(255,26,26,0.3); }
+
+  /* بخش دسته‌بندی‌ها */
+  .section-title { font-size: 20px; color: #ff1a1a; margin-bottom: 15px; border-right: 4px solid #ff1a1a; padding-right: 10px; }
+  .category-container { display: flex; flex-direction: column; gap: 25px; margin-bottom: 40px; }
+  .guns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+  
+  /* کارت‌های تفنگ */
+  .gun-card {
+    background: #111; border: 1px solid #222; padding: 15px; text-align: center; border-radius: 8px;
+    cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;
+  }
+  .gun-card:hover { border-color: #ff1a1a; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255,26,26,0.2); }
+  .gun-name { font-size: 18px; font-weight: bold; color: #fff; letter-spacing: 1px; }
+  .gun-class { font-size: 12px; color: #666; margin-top: 5px; }
+
+  /* پاپ‌آپ (Modal) نمایش اتچمنت */
+  .modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center;
+    z-index: 200; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+  }
+  .modal.active { opacity: 1; pointer-events: auto; }
+  .modal-content {
+    background: #111; border: 2px solid #ff1a1a; width: 90%; max-width: 450px; padding: 25px;
+    border-radius: 12px; box-shadow: 0 0 30px rgba(255,26,26,0.4); transform: scale(0.8); transition: all 0.3s ease;
+  }
+  .modal.active .modal-content { transform: scale(1); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+  .modal-title { font-size: 22px; color: #ff1a1a; font-weight: bold; }
+  .close-modal { font-size: 28px; color: #666; cursor: pointer; transition: 0.3s; }
+  .close-modal:hover { color: #fff; }
+  
+  .attachment-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .attachment-item {
+    background: #1a1a1a; padding: 12px; border-right: 3px solid #ff1a1a; border-radius: 4px;
+    display: flex; justify-content: space-between; font-size: 15px;
+  }
+  .attachment-type { color: #888; font-size: 13px; }
+
+  /* ریسپانسیو برای موبایل */
+  @media(max-width: 480px) {
+    .page-title { font-size: 22px; }
+    .guns-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+    .gun-name { font-size: 15px; }
+    .modal-content { padding: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="btn-back">بازگشت</a>
+  <div class="page-title">ATTACHMENTS</div>
+</header>
+
+<div class="search-container">
+  <input type="text" id="searchBox" class="search-box" placeholder="جستجوی نام گان یا دسته بندی...">
+</div>
+
+<div id="categoriesWrapper"></div>
+
+<div class="modal" id="attachmentModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title" id="modalGunName">Grau 5.56</span>
+      <span class="close-modal" id="closeModal">&times;</span>
+    </div>
+    <ul class="attachment-list" id="modalAttachments">
+      </ul>
+  </div>
+</div>
+
+<script>
+// دیتابیس کامل گان‌ها و بهترین اتچمنت‌های آن‌ها
+const gunData = {
+  "Assault Rifles": [
+    { name: "Grau 5.56", attachments: { "Muzzle": "Monolithic Suppressor", "Barrel": "Tempus 26.4 Archangel", "Stock": "No Stock", "Laser": "OWC Laser - Tactical", "Ammunition": "50 Round Fast Mag" } },
+    { name: "DR-H", attachments: { "Muzzle": "Monolithic Suppressor", "Barrel": "OWC Marksman", "Stock": "No Stock", "Laser": "OWC Laser - Tactical", "Ammunition": "25 Round OTM Mag" } },
+    { name: "Kilo 141", attachments: { "Muzzle": "Monolithic Suppressor", "Barrel": "OWC Marksman", "Stock": "No Stock", "Laser": "OWC Laser - Tactical", "Rear Grip": "Granulated Grip Tape" } },
+    { name: "AK-47", attachments: { "Muzzle": "Gru Combo Grip", "Stock": "No Stock", "Laser": "OWC Laser - Tactical", "Ammunition": "Large Extended Mag B", "Rear Grip": "Granulated Grip Tape" } }
+  ],
+  "SMGs": [
+    { name: "Fennec", attachments: { "Muzzle": "Monolithic Suppressor", "Barrel": "MIP Light Extended Barrel", "Stock": "No Stock", "Laser": "OWC Laser - Tactical", "Ammunition": "Extended Mag A" } },
+    { name: "Switchblade X9", attachments: { "Muzzle": "Monolithic Suppressor", "Barrel": "MIP Extended Light Barrel", "Stock": "YKM Light Stock", "Laser": "OWC Laser - Tactical", "Ammunition": "Extended Mag A" } },
+    { name: "CBR4", attachments: { "Muzzle": "Monolithic Suppressor", "Barrel": "OWC Marksman", "Stock": "YKM Light Stock", "Laser": "OWC Laser - Tactical", "Rear Grip": "Granulated Grip Tape" } }
+  ],
+  "Snipers": [
+    { name: "DL Q33", attachments: { "Barrel": "MIP Light Barrel", "Stock": "YKM Combat Stock", "Perk": "FMJ", "Laser": "OWC Laser - Tactical", "Rear Grip": "Bipod" } },
+    { name: "Locus", attachments: { "Barrel": "YKM Lightweight Short", "Stock": "YKM Combat Stock", "Ammunition": "OWC Stopping Power Reload", "Rear Grip": "Stippled Grip Tape", "Perk": "FMJ" } }
+  ],
+  "LMGs": [
+    { name: "Holger 26", attachments: { "Muzzle": "Monolithic Suppressor", "Light Barrel": "MIP Light", "Stock": "No Stock", "Laser": "OWC Laser - Tactical", "Rear Grip": "Granulated Grip Tape" } }
+  ],
+  "Shotguns": [
+    { name: "KRM-262", attachments: { "Muzzle": "Marauder Suppressor", "Barrel": "Extended Barrel (+2)", "Stock": "No Stock", "Laser": "MIP Laser 5mW", "Rear Grip": "Stippled Grip Tape" } }
+  ],
+  "Marksman": [
+    { name: "SKS", attachments: { "Muzzle": "Tactical Suppressor", "Barrel": "MIP Light Barrel", "Stock": "MIP Stalker Stock", "Laser": "OWC Laser - Tactical", "Rear Grip": "Granulated Grip Tape" } }
+  ]
+};
+
+const wrapper = document.getElementById('categoriesWrapper');
+const searchBox = document.getElementById('searchBox');
+const modal = document.getElementById('attachmentModal');
+const closeModal = document.getElementById('closeModal');
+
+// تابع رندر کردن تفنگ‌ها بر اساس سرچ یا به صورت کامل
+function renderGuns(filterText = '') {
+  wrapper.innerHTML = '';
+  filterText = filterText.toLowerCase();
+
+  for (const [category, guns] of Object.entries(gunData)) {
+    // فیلتر کردن گان‌ها بر اساس نام خودشان یا نام دسته‌بندی‌شان
+    const filteredGuns = guns.filter(gun => 
+      gun.name.toLowerCase().includes(filterText) || category.toLowerCase().includes(filterText)
+    );
+
+    if (filteredGuns.length === 0) continue;
+
+    // ایجاد باکس دسته‌بندی
+    const catSection = document.createElement('div');
+    catSection.className = 'category-container';
+    
+    const title = document.createElement('h3');
+    title.className = 'section-title';
+    title.innerText = category;
+    catSection.appendChild(title);
+
+    const grid = document.createElement('div');
+    grid.className = 'guns-grid';
+
+    // ایجاد کارت تفنگ‌ها
+    filteredGuns.forEach(gun => {
+      const card = document.createElement('div');
+      card.className = 'gun-card';
+      card.innerHTML = `
+        <div class="gun-name">${gun.name}</div>
+        <div class="gun-class">${category}</div>
+      `;
+      
+      // کلیک روی گان و باز شدن پاپ‌آپ اتچمنت
+      card.addEventListener('click', () => openAttachment(gun));
+      grid.appendChild(card);
+    });
+
+    catSection.appendChild(grid);
+    wrapper.appendChild(catSection);
+  }
+}
+
+// نمایش پاپ‌آپ اتچمنت‌ها
+function openAttachment(gun) {
+  document.getElementById('modalGunName').innerText = gun.name;
+  const listContainer = document.getElementById('modalAttachments');
+  listContainer.innerHTML = '';
+
+  for (const [type, name] of Object.entries(gun.attachments)) {
+    const li = document.createElement('li');
+    li.className = 'attachment-item';
+    li.innerHTML = `
+      <span>${name}</span>
+      <span class="attachment-type">${type}</span>
+    `;
+    listContainer.appendChild(li);
+  }
+  
+  modal.classList.add('active');
+}
+
+// بستن مودال
+closeModal.addEventListener('click', () => modal.classList.remove('active'));
+window.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
+
+// فیلتر آنی هنگام تایپ در باکس جستجو
+searchBox.addEventListener('input', (e) => renderGuns(e.target.value));
+
+// اجرای اولیه صفحه
+renderGuns();
+</script>
+
+</body>
+</html>

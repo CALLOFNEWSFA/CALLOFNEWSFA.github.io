@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اخبار کالاف دیوتی موبایل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght=700;900&family=Vazirmatn:wght=400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; }
+        body { background-color: #0b0b0e; color: #eeeeee; background-image: radial-gradient(circle at 50% 20%, #1f1414 0%, #0b0b0e 60%); }
+        
+        header { 
+            position: fixed; top: 0; left: 0; width: 100%; padding: 20px 6%; 
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 1000; background: rgba(11, 11, 14, 0.85); backdrop-filter: blur(12px); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
+        }
+        
+        /* استایل اختصاصی و خفن برای نام کانال شما */
+        .logo { font-size: 26px; font-weight: 900; color: #ffffff; letter-spacing: 0.5px; }
+        .logo span { color: #ff1a1a; text-shadow: 0 0 15px rgba(255, 26, 26, 0.8); }
+        
+        /* دکمه بازگشت */
+        .btn-back {
+            padding: 8px 20px; background: transparent; color: #ff1a1a; border: 2px solid #ff1a1a;
+            font-family: 'Orbitron', sans-serif; font-weight: 700; border-radius: 4px;
+            cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
+            text-decoration: none; font-size: 14px;
+        }
+        .btn-back:hover { background-color: #ff1a1a; color: #fff; box-shadow: 0 0 15px #ff1a1a; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 160px 4% 80px 4%; }
+        .main-title { text-align: center; font-size: 26px; font-weight: 700; margin-bottom: 12px; color: #ffffff; }
+        .subtitle { text-align: center; color: #ff1a1a; font-size: 15px; margin-bottom: 50px; font-weight: bold; }
+        
+        .loading { text-align: center; font-size: 18px; color: #ff1a1a; margin: 40px 0; font-weight: bold; }
+        .news-feed { display: flex; flex-direction: column; gap: 40px; }
+        .news-card { background: #121216; border: 1px solid #1e1e24; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .news-image { width: 100%; max-height: 400px; object-fit: cover; border-bottom: 1px solid #1e1e24; }
+        .news-content { padding: 30px; }
+        .news-meta { display: flex; justify-content: space-between; font-size: 13px; color: #ff1a1a; font-weight: bold; margin-bottom: 15px; }
+        .news-card h3 { font-size: 22px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; }
+        .news-card p { color: #b3b9c1; font-size: 15px; line-height: 1.8; }
+
+        @media(max-width: 768px) {
+            .logo { font-size: 22px; }
+            .btn-back { padding: 6px 14px; font-size: 12px; }
+            .main-title { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <!-- نام کانال شما با فونت ضخیم و افکت نئونی -->
+        <div class="logo">کالاف <span>نیوز</span></div>
+        <!-- دکمه بازگشت به صفحه اصلی -->
+        <a href="index.html" class="btn-back">Back</a>
+    </header>
+
+    <div class="container">
+        <h1 class="main-title">اخبار کالاف دیوتی موبایل</h1>
+        <p class="subtitle">اخبار دقیق و به روز</p>
+
+        <div id="loading" class="loading">⚡ در حال دریافت آخرین اخبار...</div>
+        <div class="news-feed" id="newsWrapper"></div>
+    </div>
+
+    <script>
+        const backupDataUrl = "https://api.github.com/repos/Heisenberg-000/codm-news-db/issues?state=open";
+
+        async function loadLiveNews() {
+            const wrapper = document.getElementById('newsWrapper');
+            const loading = document.getElementById('loading');
+
+            try {
+                const response = await fetch(backupDataUrl);
+                const issues = await response.json();
+
+                if (issues && issues.length > 0) {
+                    loading.style.display = 'none';
+                    wrapper.innerHTML = '';
+
+                    issues.forEach(issue => {
+                        let imgUrl = "https://s8.uupload.ir/files/codm1_7m7x.jpg"; 
+                        const imgMatch = issue.body.match(/!\[.*?\]\((.*?)\)/) || issue.body.match(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i);
+                        if (imgMatch) imgUrl = imgMatch[1];
+
+                        let cleanBody = issue.body.replace(/!\[.*?\]\((.*?)\)/g, '').replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i, '');
+
+                        const card = document.createElement('div');
+                        card.className = 'news-card';
+                        card.innerHTML = `
+                            <img src="${imgUrl}" class="news-image" alt="CODM">
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span>کالاف دیوتی موبایل 🟢</span>
+                                    <span>بروزرسانی زنده</span>
+                                </div>
+                                <h3>${issue.title}</h3>
+                                <p>${cleanBody.substring(0, 300)}...</p>
+                            </div>
+                        `;
+                        wrapper.appendChild(card);
+                    });
+                } else {
+                    showDemo();
+                }
+            } catch (error) {
+                showDemo();
+            }
+        }
+
+        function showDemo() {
+            document.getElementById('loading').style.display = 'none';
+            const wrapper = document.getElementById('newsWrapper');
+            wrapper.innerHTML = `
+                <div class="news-card">
+                    <img src="https://s8.uupload.ir/files/codm1_7m7x.jpg" class="news-image">
+                    <div class="news-content">
+                        <div class="news-meta"><span>سیزن جدید 🟢</span><span>امروز</span></div>
+                        <h3>[تست لوکال] پچ‌نوت رسمی و تغییرات سیزن جدید کالاف دیوتی موبایل</h3>
+                        <p>این یک خبر نمونه است. به محض آپلود روی گیت‌هاب، اخبار واقعی چنل به صورت خودکار و زنده در این بخش جایگزین خواهند شد.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.addEventListener('DOMContentLoaded', loadLiveNews);
+    </script>
+</body>
+</html>
