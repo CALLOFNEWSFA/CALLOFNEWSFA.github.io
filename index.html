@@ -4,104 +4,108 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Call Of Duty Hub</title>
+<title>Callof Hub</title>
 
-<!-- فونت -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@600&family=Vazirmatn&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 body{
   margin:0;
-  background:#0b0f14;
-  font-family:'Vazirmatn', sans-serif;
-  overflow:hidden;
+  font-family:'Poppins', sans-serif;
+  background:linear-gradient(to bottom,#1e3c72,#2a5298);
+}
+
+/* بکگراند تار */
+.overlay{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.3);
+  z-index:1;
 }
 
 /* کانتینر */
 .container{
   display:flex;
   height:100vh;
-}
-
-/* هر عکس */
-.card{
-  width:50%;
   position:relative;
-  overflow:hidden;
-  cursor:pointer;
-}
-
-.card img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  filter:brightness(60%);
-  transition:0.5s;
-}
-
-/* افکت هاور */
-.card:hover img{
-  filter:brightness(100%);
-  transform:scale(1.05);
-}
-
-/* متن روی عکس */
-.text{
-  position:absolute;
-  bottom:40px;
-  left:40px;
-  color:white;
   z-index:2;
 }
 
-.title{
-  font-size:40px;
-  font-family:'Orbitron';
-  text-shadow:0 0 20px black;
-}
-
-.sub{
-  font-family:'Rajdhani';
-  opacity:0.8;
-}
-
-/* افکت وسط */
-.overlay{
-  position:absolute;
-  width:100%;
-  height:100%;
-  background:linear-gradient(to right, rgba(0,0,0,0.7), transparent, rgba(0,0,0,0.7));
-  pointer-events:none;
-}
-
-/* انیمیشن ورود */
+/* کارت‌ها */
 .card{
-  animation:fadeIn 1s ease;
-}
-
-@keyframes fadeIn{
-  from{
-    opacity:0;
-    transform:scale(0.9);
-  }
-  to{
-    opacity:1;
-    transform:scale(1);
-  }
-}
-
-/* افکت گلیچ خفن */
-.title{
+  width:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  cursor:pointer;
   position:relative;
 }
 
-.title::after{
-  content:attr(data-text);
+/* عکس */
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:contain; /* مهم */
+  background:black;
+  transition:0.4s;
+}
+
+/* هاور */
+.card:hover img{
+  transform:scale(1.03);
+  filter:brightness(1.1);
+}
+
+/* خط وسط محو */
+.card::after{
+  content:"";
   position:absolute;
-  left:2px;
-  top:0;
-  color:red;
+  right:-1px;
+  width:2px;
+  height:100%;
+  background:linear-gradient(to bottom, transparent, white, transparent);
   opacity:0.3;
+}
+
+/* دکمه دانلود */
+.download{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  padding:15px 35px;
+  background:rgba(255,255,255,0.1);
+  border:2px solid white;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  transition:0.3s;
+  z-index:3;
+}
+
+.download:hover{
+  background:white;
+  color:black;
+  box-shadow:0 0 20px white;
+}
+
+/* موبایل */
+@media(max-width:768px){
+  .container{
+    flex-direction:column;
+  }
+
+  .card{
+    width:100%;
+    height:50%;
+  }
+
+  .card::after{
+    display:none;
+  }
 }
 </style>
 
@@ -109,36 +113,32 @@ body{
 
 <body>
 
+<div class="overlay"></div>
+
 <div class="container">
 
-  <!-- Attachments -->
+  <!-- عکس 1 -->
   <div class="card" onclick="go('attachments.html')">
     <img src="1.jpg">
-    <div class="text">
-      <div class="title" data-text="اتچمنت ها">اتچمنت ها</div>
-      <div class="sub">ATTACHMENTS</div>
-    </div>
   </div>
 
-  <!-- News -->
+  <!-- عکس 2 -->
   <div class="card" onclick="go('news.html')">
     <img src="2.jpg">
-    <div class="text">
-      <div class="title" data-text="اخبار">اخبار</div>
-      <div class="sub">NEWS</div>
-    </div>
   </div>
+
+  <!-- دکمه دانلود -->
+  <button class="download" onclick="downloadGame()">DOWNLOAD</button>
 
 </div>
 
-<div class="overlay"></div>
-
 <script>
 function go(page){
-  document.body.style.opacity = "0";
-  setTimeout(()=>{
-    window.location.href = page;
-  },300);
+  window.location.href = page;
+}
+
+function downloadGame(){
+  window.open("https://www.callofduty.com/mobile", "_blank");
 }
 </script>
 
