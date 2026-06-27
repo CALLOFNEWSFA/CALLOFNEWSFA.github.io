@@ -16,12 +16,11 @@
 body{
   font-family:'Vazirmatn', sans-serif;
   background:#000;
-  height:100vh;
   overflow:hidden;
   color:white;
 }
 
-/* 🔥 لودینگ */
+/* لودینگ */
 .loader{
   position:fixed;
   width:100%;
@@ -30,11 +29,16 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  z-index:9999;
   font-family:'Orbitron';
-  color:#0f0;
-  font-size:20px;
-  letter-spacing:3px;
+  font-size:18px;
+  color:red;
+  z-index:999;
+  animation:fadeOut 1s ease forwards;
+  animation-delay:1.5s;
+}
+
+@keyframes fadeOut{
+  to{opacity:0;visibility:hidden;}
 }
 
 /* عنوان */
@@ -43,9 +47,9 @@ body{
   top:20px;
   width:100%;
   text-align:center;
-  font-size:30px;
-  color:red;
-  text-shadow:0 0 10px red;
+  font-size:28px;
+  color:#ff1a1a;
+  text-shadow:0 0 12px red;
   z-index:10;
 }
 
@@ -53,58 +57,70 @@ body{
 .container{
   display:flex;
   height:100vh;
+  position:relative;
 }
 
 /* باکس */
 .box{
   flex:1;
-  position:relative;
   overflow:hidden;
   cursor:pointer;
+  position:relative;
 }
 
-/* تصویر */
+/* 🔥 تصویر با بلِند */
 .box img{
   width:100%;
   height:100%;
   object-fit:cover;
-  filter:blur(15px) brightness(0.4);
-  transform:scale(1.1);
+  mix-blend-mode:screen;
+  filter:brightness(0.7);
   opacity:0;
-  transition:1s;
+  transform:scale(1.05);
+  transition:1s ease;
 }
 
 .box img.loaded{
-  filter:blur(0) brightness(1);
-  transform:scale(1);
   opacity:1;
+  transform:scale(1);
 }
 
 .box:hover img{
   transform:scale(1.08);
-  filter:brightness(1.2);
+  filter:brightness(1);
 }
 
-/* بلِند */
-.container::before,
-.container::after{
+/* 🔥 بلِند وسط حرفه‌ای */
+.container::before{
   content:'';
   position:absolute;
+  left:50%;
   top:0;
-  width:200px;
+  transform:translateX(-50%);
+  width:400px;
   height:100%;
   z-index:3;
+  pointer-events:none;
+  background:radial-gradient(circle,rgba(0,0,0,0) 0%,rgba(0,0,0,0.3) 40%,rgba(0,0,0,0.8) 80%,black 100%);
 }
 
-.container::before{
+/* نور وسط */
+.center-glow{
+  position:absolute;
   left:50%;
-  transform:translateX(-100%);
-  background:linear-gradient(to right,black,transparent);
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:350px;
+  height:350px;
+  background:radial-gradient(circle,rgba(255,0,0,0.25),transparent 70%);
+  z-index:2;
+  pointer-events:none;
+  animation:pulse 3s infinite;
 }
 
-.container::after{
-  left:50%;
-  background:linear-gradient(to left,black,transparent);
+@keyframes pulse{
+  0%,100%{opacity:0.4;}
+  50%{opacity:0.9;}
 }
 
 /* دکمه */
@@ -114,9 +130,9 @@ body{
   left:50%;
   transform:translate(-50%,-50%);
   font-family:'Orbitron';
-  padding:10px 30px;
-  font-size:14px;
-  background:red;
+  padding:8px 25px;
+  font-size:13px;
+  background:linear-gradient(45deg,#ff0000,#ff4d4d);
   border:none;
   color:white;
   border-radius:6px;
@@ -128,21 +144,22 @@ body{
 
 .download:hover{
   transform:translate(-50%,-50%) scale(1.1);
+  box-shadow:0 0 30px red;
 }
 
-/* 🔥 نور موس */
+/* نور موس */
 .cursor{
   position:fixed;
   width:120px;
   height:120px;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(255,0,0,0.4), transparent);
+  background:radial-gradient(circle,rgba(255,0,0,0.35),transparent 70%);
   pointer-events:none;
+  border-radius:50%;
   transform:translate(-50%,-50%);
-  z-index:999;
+  z-index:1;
 }
 
-/* آتش */
+/* 🔥 آتش */
 .fire{
   position:absolute;
   top:-10px;
@@ -150,7 +167,8 @@ body{
   height:6px;
   background:orange;
   border-radius:50%;
-  opacity:0.8;
+  opacity:0.7;
+  filter:blur(1px);
   animation:fall linear infinite;
 }
 
@@ -161,9 +179,10 @@ body{
   }
 }
 
+/* موبایل */
 @media(max-width:768px){
   .container{flex-direction:column;}
-  .title{font-size:22px;}
+  .title{font-size:20px;}
 }
 </style>
 </head>
@@ -171,66 +190,67 @@ body{
 <body>
 
 <div class="loader">LOADING...</div>
-<div class="cursor"></div>
+<div class="cursor" id="cursor"></div>
 
 <div class="title">چنل بزرگ کالاف نیوز</div>
 
 <div class="container">
+
   <div class="box" onclick="go('attachments.html')">
-    <img src="1.jpg">
+    <img src="1.jpg" loading="lazy">
   </div>
 
   <div class="box" onclick="go('news.html')">
-    <img src="2.jpg">
+    <img src="2.jpg" loading="lazy">
   </div>
+
+  <div class="center-glow"></div>
+
 </div>
 
 <button class="download" onclick="downloadGame()">DOWNLOAD</button>
 
-<!-- 🔊 صدا -->
-<audio id="clickSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c5c8c8c8.mp3"></audio>
+<audio id="clickSound" src="https://www.soundjay.com/buttons/button-16.mp3"></audio>
 
 <script>
 
-/* لودینگ */
-window.onload = ()=>{
-  setTimeout(()=>{
-    document.querySelector(".loader").style.display="none";
-  },1500);
-};
-
-/* رفتن */
+/* ناوبری */
 function go(p){
   playSound();
-  setTimeout(()=>{window.location.href=p},200);
+  setTimeout(()=>window.location.href=p,150);
 }
 
-/* دانلود */
 function downloadGame(){
   playSound();
   setTimeout(()=>{
     window.location.href="https://www.callofduty.com/mobile";
-  },200);
+  },150);
 }
 
 /* صدا */
 function playSound(){
-  document.getElementById("clickSound").play();
+  const s=document.getElementById("clickSound");
+  s.currentTime=0;
+  s.play();
 }
 
 /* لود نرم */
 document.querySelectorAll("img").forEach(img=>{
-  img.onload = ()=> img.classList.add("loaded");
+  if(img.complete){
+    img.classList.add("loaded");
+  }else{
+    img.onload=()=>img.classList.add("loaded");
+  }
 });
 
 /* نور موس */
-document.addEventListener("mousemove", e=>{
-  const c=document.querySelector(".cursor");
-  c.style.left=e.clientX+"px";
-  c.style.top=e.clientY+"px";
+const cursor=document.getElementById("cursor");
+document.addEventListener("mousemove",e=>{
+  cursor.style.left=e.clientX+"px";
+  cursor.style.top=e.clientY+"px";
 });
 
-/* آتش */
+/* 🔥 آتش بهینه */
 function fire(){
   const f=document.createElement("div");
   f.className="fire";
@@ -239,7 +259,13 @@ function fire(){
   document.body.appendChild(f);
   setTimeout(()=>f.remove(),5000);
 }
-setInterval(fire,60);
+
+function loop(){
+  if(document.hidden) return;
+  fire();
+  setTimeout(loop,120);
+}
+loop();
 
 </script>
 
