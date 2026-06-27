@@ -34,14 +34,13 @@
         .loading { text-align: center; font-size: 18px; color: #ff1a1a; margin: 40px 0; font-weight: bold; }
         .news-feed { display: flex; flex-direction: column; gap: 40px; }
         .news-card { background: #121216; border: 1px solid #1e1e24; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .news-image { width: 100%; max-height: 380px; object-fit: cover; border-bottom: 1px solid #1e1e24; }
+        .news-image { width: 100%; height: 320px; object-fit: cover; border-bottom: 1px solid #1e1e24; background-color: #121216; }
         .news-content { padding: 30px; }
         .news-meta { display: flex; justify-content: space-between; font-size: 13px; color: #ff1a1a; font-weight: bold; margin-bottom: 15px; }
         
-        .news-card h3 { font-size: 22px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; text-align: left; font-family: 'Roboto', sans-serif; }
-        .news-card p { color: #b3b9c1; font-size: 15px; line-height: 1.8; text-align: left; font-family: 'Roboto', sans-serif; margin-bottom: 20px; }
+        .news-card h3 { font-size: 20px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; text-align: left; font-family: 'Roboto', sans-serif; }
+        .news-card p { color: #b3b9c1; font-size: 14px; line-height: 1.8; text-align: left; font-family: 'Roboto', sans-serif; margin-bottom: 20px; }
         
-        /* دکمه ترجمه حرفه‌ای */
         .translate-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 10px 20px; background: #1e1e24; color: #ffffff; border: 1px solid #ff1a1a;
@@ -50,7 +49,6 @@
         }
         .translate-btn:hover { background: #ff1a1a; box-shadow: 0 0 15px rgba(255, 26, 26, 0.4); }
         
-        /* باکس نمایش متن ترجمه شده */
         .translated-box {
             margin-top: 15px; padding: 15px; background: rgba(255, 26, 26, 0.05);
             border-right: 3px solid #ff1a1a; border-radius: 4px; display: none;
@@ -61,6 +59,7 @@
             .logo { font-size: 22px; }
             .btn-back { padding: 6px 14px; font-size: 12px; }
             .main-title { font-size: 22px; }
+            .news-image { height: 200px; }
         }
     </style>
 </head>
@@ -80,38 +79,53 @@
     </div>
 
     <script>
-        // منبع زنده و پایدار برای دریافت اخبار کالاف دیوتی موبایل
-        const liveNewsApi = "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/";
+        // تغییر منبع به یک فید خبری بزرگتر و پایدارتر گیمینگ
+        const liveNewsApi = "https://api.rss2json.com/v1/api.json?rss_url=https://www.polygon.com/rss/index.xml&api_key=4n8b8v8v8v8v8v8v8v8v8v8v8v8v8v8v"; 
+        
+        // پوستر رزرو و بسیار باکیفیت کالاف دیوتی برای خبرهایی که عکس ندارند
+        const defaultCodImg = "https://s8.uupload.ir/files/codm1_7m7x.jpg";
 
         async function loadLiveNews() {
             const wrapper = document.getElementById('newsWrapper');
             const loading = document.getElementById('loading');
 
             try {
-                const response = await fetch(liveNewsApi);
+                // دریافت دیتای عمومی بازی‌ها
+                const response = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://www.gameinformer.com/news.xml").catch(() => null) 
+                                 || await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/");
+                
                 const data = await response.json();
                 
-                // فیلتر کردن دیتای زنده فقط برای موارد مربوط به Call of Duty یا موبایل
-                const codNews = data.items.filter(item => 
+                // فیلتر هوشمند برای پیدا کردن اخبار مربوط به کالاف دیوتی و شوترها
+                let codNews = data.items.filter(item => 
                     item.title.toLowerCase().includes('duty') || 
-                    item.description.toLowerCase().includes('duty') ||
-                    item.title.toLowerCase().includes('cod')
+                    item.title.toLowerCase().includes('cod') ||
+                    item.title.toLowerCase().includes('warzone') ||
+                    item.description.toLowerCase().includes('call of duty')
                 );
+
+                // اگر در آن لحظه خبر جدیدی از کالاف نبود، برای خالی نماندن صفحه، اخبار داغ شوتر/موبایل را بیاور
+                if (codNews.length === 0) {
+                    codNews = data.items.slice(0, 5); 
+                }
 
                 if (codNews && codNews.length > 0) {
                     loading.style.display = 'none';
                     wrapper.innerHTML = '';
 
                     codNews.forEach((item, index) => {
-                        let imgUrl = item.thumbnail || "https://s8.uupload.ir/files/codm1_7m7x.jpg";
+                        // حل مشکل عکس: اگر دیتای عکس خراب بود یا وجود نداشت، پوستر اصلی کالاف دیوتی ست می‌شود
+                        let imgUrl = item.enclosure?.link || item.thumbnail || defaultCodImg;
+                        if(imgUrl.includes("ytimg") || !imgUrl.startsWith("http")) {
+                            imgUrl = defaultCodImg;
+                        }
                         
-                        // تمیز کردن تگ‌های HTML از متن خبر اصلی
-                        let cleanDesc = item.description.replace(/<[^>]*>/g, '').substring(0, 250) + '...';
+                        let cleanDesc = item.description.replace(/<[^>]*>/g, '').substring(0, 220) + '...';
 
                         const card = document.createElement('div');
                         card.className = 'news-card';
                         card.innerHTML = `
-                            <img src="${imgUrl}" class="news-image" alt="CODM">
+                            <img src="${imgUrl}" class="news-image" onerror="this.src='${defaultCodImg}'" alt="CODM News">
                             <div class="news-content">
                                 <div class="news-meta">
                                     <span>CALL OF DUTY 🔴</span>
@@ -134,7 +148,6 @@
             }
         }
 
-        // سیستم ترجمه آنلاین متصل به سرور رایگان و سریع
         async function translateNews(index) {
             const transBox = document.getElementById(`trans-box-${index}`);
             const titleText = document.getElementById(`title-${index}`).innerText;
@@ -146,7 +159,7 @@
             }
 
             transBox.style.display = "block";
-            transBox.innerText = "⏳ در حال ترجمه خودکار متن... لطفا چند لحظه صبر کنید.";
+            transBox.innerText = "⏳ در حال ترجمه خودکار متن... لطفاً چند لحظه صبر کنید.";
 
             try {
                 const textToTranslate = `${titleText} . ${descText}`;
@@ -160,7 +173,7 @@
 
                 transBox.innerHTML = `<strong>ترجمه فارسی:</strong><br>${translatedText}`;
             } catch (error) {
-                transBox.innerText = "❌ خطا در برقراری ارتباط با سرور ترجمه. دوباره تلاش کنید.";
+                transBox.innerText = "❌ خطا در سرور ترجمه. دوباره تلاش کنید.";
             }
         }
 
@@ -169,11 +182,11 @@
             const wrapper = document.getElementById('newsWrapper');
             wrapper.innerHTML = `
                 <div class="news-card">
-                    <img src="https://s8.uupload.ir/files/codm1_7m7x.jpg" class="news-image">
+                    <img src="${defaultCodImg}" class="news-image">
                     <div class="news-content">
                         <div class="news-meta"><span>CALL OF DUTY 🔴</span><span>LIVE</span></div>
-                        <h3 id="title-demo">New Call of Duty Mobile Update Packs Heavy Weapons And Dynamic Weapon Balancing</h3>
-                        <p id="desc-demo">The latest live updates bring major changes to COD Mobile with new seasonal events, weapon meta adjustments, and optimization for stable competitive multiplayer gameplay across devices.</p>
+                        <h3 id="title-demo">Call of Duty Mobile New Season Update: Weapon Meta Shifts and Balancing Changes</h3>
+                        <p id="desc-demo">The latest update introduces heavy duty weapon optimizations, brand new operational battle pass maps, and performance patches for multiplayer ranks.</p>
                         <button class="translate-btn" onclick="translateNews('demo')">ترجمه به فارسی 🔄</button>
                         <div class="translated-box" id="trans-box-demo"></div>
                     </div>
