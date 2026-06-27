@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Attachments</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@600&family=Vazirmatn&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  background:#0b0f14;
+  color:white;
+  font-family:'Vazirmatn';
+}
+
+/* هدر */
+.header{
+  padding:20px;
+  font-family:'Orbitron';
+  font-size:28px;
+  border-bottom:1px solid #222;
+}
+
+/* کنترل‌ها */
+.controls{
+  display:flex;
+  gap:10px;
+  padding:15px;
+}
+
+/* سرچ */
+.search{
+  flex:1;
+  padding:10px;
+  background:#111;
+  border:1px solid #333;
+  color:white;
+}
+
+/* فیلتر */
+.select{
+  padding:10px;
+  background:#111;
+  border:1px solid #333;
+  color:white;
+}
+
+/* لیست */
+.list{
+  padding:20px;
+}
+
+/* آیتم */
+.item{
+  padding:15px;
+  margin-bottom:10px;
+  background:#111;
+  border-left:4px solid transparent;
+  cursor:pointer;
+  transition:0.3s;
+  display:flex;
+  justify-content:space-between;
+}
+
+.item:hover{
+  background:#161b22;
+  border-left:4px solid #ff0033;
+  box-shadow:0 0 10px #ff0033;
+  transform:translateX(5px);
+}
+
+/* متن */
+.name{
+  font-family:'Rajdhani';
+}
+.type{
+  opacity:0.6;
+}
+
+/* بک */
+.back{
+  position:fixed;
+  top:10px;
+  right:10px;
+  background:#ff0033;
+  border:none;
+  color:white;
+  padding:10px 15px;
+  cursor:pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<button class="back" onclick="goBack()">بازگشت</button>
+
+<div class="header">ATTACHMENTS</div>
+
+<div class="controls">
+  <input type="text" id="search" class="search" placeholder="جستجو...">
+  
+  <select id="filter" class="select">
+    <option value="all">همه</option>
+    <option value="Optic">Optic</option>
+    <option value="Muzzle">Muzzle</option>
+    <option value="Magazine">Magazine</option>
+    <option value="Laser">Laser</option>
+    <option value="Underbarrel">Underbarrel</option>
+  </select>
+</div>
+
+<div class="list" id="list">
+
+  <div class="item" data-type="Optic">
+    <div class="name">Red Dot Sight</div>
+    <div class="type">Optic</div>
+  </div>
+
+  <div class="item" data-type="Optic">
+    <div class="name">Holographic Sight</div>
+    <div class="type">Optic</div>
+  </div>
+
+  <div class="item" data-type="Muzzle">
+    <div class="name">Silencer</div>
+    <div class="type">Muzzle</div>
+  </div>
+
+  <div class="item" data-type="Magazine">
+    <div class="name">Extended Magazine</div>
+    <div class="type">Magazine</div>
+  </div>
+
+  <div class="item" data-type="Laser">
+    <div class="name">Laser</div>
+    <div class="type">Laser</div>
+  </div>
+
+  <div class="item" data-type="Underbarrel">
+    <div class="name">Foregrip</div>
+    <div class="type">Underbarrel</div>
+  </div>
+
+</div>
+
+<script>
+const searchInput = document.getElementById("search");
+const filterSelect = document.getElementById("filter");
+const items = document.querySelectorAll(".item");
+
+function update(){
+  const search = searchInput.value.toLowerCase();
+  const filter = filterSelect.value;
+
+  items.forEach(item=>{
+    const name = item.innerText.toLowerCase();
+    const type = item.getAttribute("data-type");
+
+    const matchSearch = name.includes(search);
+    const matchFilter = filter === "all" || type === filter;
+
+    if(matchSearch && matchFilter){
+      item.style.display = "flex";
+    }else{
+      item.style.display = "none";
+    }
+  });
+}
+
+searchInput.addEventListener("input", update);
+filterSelect.addEventListener("change", update);
+
+function goBack(){
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
