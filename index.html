@@ -5,11 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Call of News</title>
 
-<!-- preload تصاویر -->
-<link rel="preload" as="image" href="1.webp">
-<link rel="preload" as="image" href="2.webp">
+<link rel="preload" as="image" href="1.jpg">
+<link rel="preload" as="image" href="2.jpg">
 
-<!-- فونت -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
@@ -17,10 +15,26 @@
 
 body{
   font-family:'Vazirmatn', sans-serif;
-  background:linear-gradient(to bottom,#000,#111);
+  background:#000;
   height:100vh;
   overflow:hidden;
   color:white;
+}
+
+/* 🔥 لودینگ */
+.loader{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  font-family:'Orbitron';
+  color:#0f0;
+  font-size:20px;
+  letter-spacing:3px;
 }
 
 /* عنوان */
@@ -29,8 +43,9 @@ body{
   top:20px;
   width:100%;
   text-align:center;
-  font-size:28px;
+  font-size:30px;
   color:red;
+  text-shadow:0 0 10px red;
   z-index:10;
 }
 
@@ -53,38 +68,43 @@ body{
   width:100%;
   height:100%;
   object-fit:cover;
-  filter:blur(10px) brightness(0.5);
-  transition:0.6s;
+  filter:blur(15px) brightness(0.4);
+  transform:scale(1.1);
+  opacity:0;
+  transition:1s;
 }
 
-/* بعد لود */
 .box img.loaded{
   filter:blur(0) brightness(1);
+  transform:scale(1);
+  opacity:1;
 }
 
-/* هاور */
 .box:hover img{
-  transform:scale(1.05);
+  transform:scale(1.08);
+  filter:brightness(1.2);
 }
 
 /* بلِند */
-.box::after{
+.container::before,
+.container::after{
   content:'';
   position:absolute;
   top:0;
-  width:120px;
+  width:200px;
   height:100%;
-  z-index:2;
+  z-index:3;
 }
 
-.box:first-child::after{
-  right:-60px;
-  background:linear-gradient(to right, transparent, black);
+.container::before{
+  left:50%;
+  transform:translateX(-100%);
+  background:linear-gradient(to right,black,transparent);
 }
 
-.box:last-child::after{
-  left:-60px;
-  background:linear-gradient(to left, transparent, black);
+.container::after{
+  left:50%;
+  background:linear-gradient(to left,black,transparent);
 }
 
 /* دکمه */
@@ -93,8 +113,8 @@ body{
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  font-family:'Orbitron', sans-serif;
-  padding:10px 25px;
+  font-family:'Orbitron';
+  padding:10px 30px;
   font-size:14px;
   background:red;
   border:none;
@@ -102,11 +122,24 @@ body{
   border-radius:6px;
   cursor:pointer;
   z-index:5;
+  box-shadow:0 0 15px red;
+  transition:0.3s;
 }
 
 .download:hover{
-  background:#ff2a2a;
   transform:translate(-50%,-50%) scale(1.1);
+}
+
+/* 🔥 نور موس */
+.cursor{
+  position:fixed;
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,0,0,0.4), transparent);
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  z-index:999;
 }
 
 /* آتش */
@@ -128,48 +161,73 @@ body{
   }
 }
 
-/* موبایل */
 @media(max-width:768px){
   .container{flex-direction:column;}
-  .box::after{display:none;}
-  .title{font-size:20px;}
+  .title{font-size:22px;}
 }
 </style>
 </head>
 
 <body>
 
+<div class="loader">LOADING...</div>
+<div class="cursor"></div>
+
 <div class="title">چنل بزرگ کالاف نیوز</div>
 
 <div class="container">
-
   <div class="box" onclick="go('attachments.html')">
-    <img src="1.webp" alt="">
+    <img src="1.jpg">
   </div>
 
   <div class="box" onclick="go('news.html')">
-    <img src="2.webp" alt="">
+    <img src="2.jpg">
   </div>
-
 </div>
 
 <button class="download" onclick="downloadGame()">DOWNLOAD</button>
 
+<!-- 🔊 صدا -->
+<audio id="clickSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c5c8c8c8.mp3"></audio>
+
 <script>
 
-/* رفتن صفحه */
+/* لودینگ */
+window.onload = ()=>{
+  setTimeout(()=>{
+    document.querySelector(".loader").style.display="none";
+  },1500);
+};
+
+/* رفتن */
 function go(p){
-  window.location.href = p;
+  playSound();
+  setTimeout(()=>{window.location.href=p},200);
 }
 
 /* دانلود */
 function downloadGame(){
-  window.location.href="https://www.callofduty.com/mobile";
+  playSound();
+  setTimeout(()=>{
+    window.location.href="https://www.callofduty.com/mobile";
+  },200);
 }
 
-/* blur load */
+/* صدا */
+function playSound(){
+  document.getElementById("clickSound").play();
+}
+
+/* لود نرم */
 document.querySelectorAll("img").forEach(img=>{
   img.onload = ()=> img.classList.add("loaded");
+});
+
+/* نور موس */
+document.addEventListener("mousemove", e=>{
+  const c=document.querySelector(".cursor");
+  c.style.left=e.clientX+"px";
+  c.style.top=e.clientY+"px";
 });
 
 /* آتش */
@@ -181,7 +239,7 @@ function fire(){
   document.body.appendChild(f);
   setTimeout(()=>f.remove(),5000);
 }
-setInterval(fire,80);
+setInterval(fire,60);
 
 </script>
 
