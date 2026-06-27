@@ -1,124 +1,156 @@
-<script>
-const sources = [
-    "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-    "https://api.rss2json.com/v1/api.json?rss_url=https://www.eurogamer.net/feed/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-    "https://api.rss2json.com/v1/api.json?rss_url=https://rss.ign.com/ign/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-    "https://api.rss2json.com/v1/api.json?rss_url=https://www.pcgamer.com/rss/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-    "https://api.rss2json.com/v1/api.json?rss_url=https://www.rockpapershotgun.com/feed/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-    "https://api.rss2json.com/v1/api.json?rss_url=https://kotaku.com/rss&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s"
-];
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CODM News</title>
 
-async function fetchStrictCODMNews() {
-    const wrapper = document.getElementById('newsWrapper');
-    const loading = document.getElementById('loading');
-
-    try {
-        const fetchPromises = sources.map(src =>
-            fetch(src).then(res => res.json()).catch(() => ({ items: [] }))
-        );
-
-        const results = await Promise.all(fetchPromises);
-
-        let combinedItems = [];
-        results.forEach(data => {
-            if (data.items) combinedItems = combinedItems.concat(data.items);
-        });
-
-        if (combinedItems.length > 0) {
-
-            combinedItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-            // ✅ فیلتر حرفه‌ای CODM
-            let mobileOnlyFilter = combinedItems.filter(item => {
-                const text = ((item.title || "") + " " + (item.description || "")).toLowerCase();
-
-                const keywords = [
-                    "call of duty mobile",
-                    "cod mobile",
-                    "codm",
-                    "warzone mobile",
-                    "mobile season",
-                    "mobile update"
-                ];
-
-                return keywords.some(k => text.includes(k));
-            });
-
-            // حذف تکراری
-            let uniqueFilter = [];
-            let seenTitles = new Set();
-
-            mobileOnlyFilter.forEach(item => {
-                if (!seenTitles.has(item.title)) {
-                    seenTitles.add(item.title);
-                    uniqueFilter.push(item);
-                }
-            });
-
-            if (uniqueFilter.length === 0) {
-                generateMultiFallback();
-                return;
-            }
-
-            loading.style.display = 'none';
-            wrapper.innerHTML = '';
-
-            uniqueFilter.slice(0, 8).forEach((item, index) => {
-
-                // ✅ سیستم تصویر قوی
-                let imgUrl = item.enclosure?.link || item.thumbnail || "";
-
-                if (!imgUrl) {
-                    const match = item.description?.match(/<img[^>]+src="([^">]+)"/);
-                    if (match) imgUrl = match[1];
-                }
-
-                let imgHtml = "";
-                if (imgUrl && imgUrl.startsWith("http")) {
-                    imgHtml = `<img src="${imgUrl}" class="news-image" onerror="this.style.display='none'" alt="CODM Update">`;
-                }
-
-                let fullDesc = (item.description || "").replace(/<[^>]*>/g, '').trim();
-                let displayTitle = item.title;
-
-                const timeAgo = getRelativeTime(item.pubDate);
-                const sourceLink = item.link;
-
-                const card = document.createElement('div');
-                card.className = 'news-card';
-
-                card.innerHTML = `
-                    ${imgHtml}
-                    <div class="news-content">
-                        <div class="news-meta">
-                            <span>CODM MOBILE ONLY 📱</span>
-                            <span class="time-badge">⏱️ ${timeAgo}</span>
-                        </div>
-                        <h3 id="title-${index}">${displayTitle}</h3>
-                        <div class="news-text-box">
-                            <p id="desc-${index}">${fullDesc}</p>
-                        </div>
-
-                        <div class="actions-box">
-                            <button class="translate-btn" onclick="translateNews(${index})">ترجمه به فارسی 🔄</button>
-                            <a href="${sourceLink}" target="_blank" class="source-btn">مشاهده منبع اصلی خبر 🌐</a>
-                        </div>
-
-                        <div class="translated-box" id="trans-box-${index}">در حال ترجمه...</div>
-                    </div>
-                `;
-
-                wrapper.appendChild(card);
-            });
-
-        } else {
-            generateMultiFallback();
-        }
-
-    } catch (error) {
-        generateMultiFallback();
-    }
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#0b0b0b;
 }
 
-window.addEventListener('DOMContentLoaded', () => fetchStrictCODMNews());
+.header{
+  text-align:center;
+  padding:20px;
+  font-size:24px;
+  color:#00ffcc;
+}
+
+#newsWrapper{
+  max-width:900px;
+  margin:auto;
+}
+
+.card{
+  background:#111;
+  margin:15px;
+  border-radius:15px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,255,200,0.2);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:scale(1.02);
+}
+
+.card img{
+  width:100%;
+}
+
+.content{
+  padding:15px;
+}
+
+.title{
+  color:#fff;
+  font-size:18px;
+  margin-bottom:10px;
+}
+
+.desc{
+  color:#aaa;
+  font-size:14px;
+  margin-bottom:10px;
+}
+
+a{
+  color:#00ffcc;
+  text-decoration:none;
+}
+
+.loading{
+  text-align:center;
+  color:#fff;
+  margin-top:50px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🔥 اخبار Call of Duty Mobile</div>
+
+<div id="newsWrapper">
+  <div class="loading">در حال لود اخبار...</div>
+</div>
+
+<script>
+const sources = [
+  "https://api.rss2json.com/v1/api.json?rss_url=https://rss.ign.com/ign/news",
+  "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/"
+];
+
+async function loadNews() {
+  const wrapper = document.getElementById("newsWrapper");
+
+  try {
+    const results = await Promise.all(
+      sources.map(url =>
+        fetch(url)
+          .then(r => r.json())
+          .catch(() => ({ items: [] }))
+      )
+    );
+
+    let items = [];
+    results.forEach(r => {
+      if (r.items) items = items.concat(r.items);
+    });
+
+    // 💣 فیلتر CODM
+    items = items.filter(item => {
+      const text = ((item.title || "") + (item.description || "")).toLowerCase();
+      return text.includes("mobile") || text.includes("cod");
+    });
+
+    // مرتب سازی
+    items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+    wrapper.innerHTML = "";
+
+    if (items.length === 0) {
+      wrapper.innerHTML = "<p style='color:white;text-align:center'>هیچ خبر CODM پیدا نشد 😐</p>";
+      return;
+    }
+
+    items.slice(0, 6).forEach(item => {
+
+      let img = item.thumbnail || "";
+
+      if (!img) {
+        const match = item.description?.match(/<img[^>]+src="([^">]+)"/);
+        if (match) img = match[1];
+      }
+
+      const cleanDesc = (item.description || "")
+        .replace(/<[^>]*>/g,"")
+        .slice(0,120);
+
+      const card = `
+        <div class="card">
+          ${img ? `<img src="${img}">` : ""}
+          <div class="content">
+            <div class="title">${item.title}</div>
+            <div class="desc">${cleanDesc}</div>
+            <a href="${item.link}" target="_blank">مشاهده خبر</a>
+          </div>
+        </div>
+      `;
+
+      wrapper.innerHTML += card;
+    });
+
+  } catch (e) {
+    wrapper.innerHTML = "<p style='color:red;text-align:center'>خطا در لود 😡</p>";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadNews);
 </script>
+
+</body>
+</html>
