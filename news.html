@@ -48,6 +48,8 @@
         
         .news-card p { color: #b3b9c1; font-size: 14px; line-height: 1.8; text-align: left; font-family: 'Roboto', sans-serif; }
         
+        .actions-box { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 15px; }
+
         .translate-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 10px 20px; background: #1e1e24; color: #ffffff; border: 1px solid #ff1a1a;
@@ -56,6 +58,14 @@
         }
         .translate-btn:hover { background: #ff1a1a; box-shadow: 0 0 15px rgba(255, 26, 26, 0.4); }
         
+        .source-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px; background: #121216; color: #b3b9c1; border: 1px solid #3a3a44;
+            border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold;
+            transition: all 0.3s; text-decoration: none; direction: rtl;
+        }
+        .source-btn:hover { background: #3a3a44; color: #fff; }
+
         .translated-box {
             margin-top: 15px; padding: 15px; background: rgba(255, 26, 26, 0.05);
             border-right: 3px solid #ff1a1a; border-radius: 4px; display: none;
@@ -82,16 +92,21 @@
 
     <div class="container">
         <h1 class="main-title">اخبار کالاف دیوتی موبایل</h1>
-        <p class="subtitle">سیزن جدید، پچ‌نوت‌ها و لیکیج‌های زنده CODM</p>
+        <p class="subtitle">منحصراً اخبار سیزن جدید، لیکیج‌ها و پچ‌نوت‌های هوشمند CODM</p>
 
-        <div id="loading" class="loading">⚡ در حال دریافت و ترکیب اخبار زنده از چندین منبع معتبر...</div>
+        <div id="loading" class="loading">⚡ در حال فیلتر کردن و استخراج اختصاصی اخبار Call of Duty Mobile...</div>
         <div class="news-feed" id="newsWrapper"></div>
     </div>
 
     <script>
-        // اضافه کردن دو منبع خبری بزرگ بازی برای تنوع و تعداد بیشتر اخبار
-        const source1 = "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s";
-        const source2 = "https://api.rss2json.com/v1/api.json?rss_url=https://www.eurogamer.net/feed/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s";
+        const sources = [
+            "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
+            "https://api.rss2json.com/v1/api.json?rss_url=https://www.eurogamer.net/feed/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
+            "https://api.rss2json.com/v1/api.json?rss_url=https://rss.ign.com/ign/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
+            "https://api.rss2json.com/v1/api.json?rss_url=https://www.pcgamer.com/rss/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
+            "https://api.rss2json.com/v1/api.json?rss_url=https://www.rockpapershotgun.com/feed/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
+            "https://api.rss2json.com/v1/api.json?rss_url=https://kotaku.com/rss&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s"
+        ];
 
         function getRelativeTime(dateString) {
             const now = new Date();
@@ -108,32 +123,45 @@
             return `${diffInDays} روز پیش`;
         }
 
-        async function fetchCODMSeasonNews() {
+        async function fetchStrictCODMNews() {
             const wrapper = document.getElementById('newsWrapper');
             const loading = document.getElementById('loading');
 
             try {
-                // دریافت همزمان اطلاعات از هر دو منبع جهت افزایش تعداد اخبار
-                const [res1, res2] = await Promise.all([fetch(source1), fetch(source2)]);
-                const data1 = await res1.json();
-                const data2 = await res2.json();
+                const fetchPromises = sources.map(src => fetch(src).then(res => res.json()).catch(() => ({ items: [] })));
+                const results = await Promise.all(fetchPromises);
                 
-                let allItems = [];
-                if (data1.items) allItems = allItems.concat(data1.items);
-                if (data2.items) allItems = allItems.concat(data2.items);
+                let combinedItems = [];
+                results.forEach(data => {
+                    if (data.items) combinedItems = combinedItems.concat(data.items);
+                });
 
-                if (allItems.length > 0) {
-                    // مرتب‌سازی کل اخبار بر اساس جدیدترین زمان انتشار
-                    allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                if (combinedItems.length > 0) {
+                    combinedItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-                    // فیلتر هوشمند و دقیق روی کلمات کلیدی سیزن و کالاف موبایل
-                    let seasonFilter = allItems.filter(item => {
-                        const title = item.title.toLowerCase();
+                    // فیلتر فوق‌العاده سخت‌گیرانه: حتما باید کلمه مربوط به نسخه موبایل در تیتر یا متن باشد
+                    let mobileOnlyFilter = combinedItems.filter(item => {
+                        const title = (item.title || "").toLowerCase();
                         const desc = (item.description || "").toLowerCase();
-                        return title.includes('season') || title.includes('update') || title.includes('leak') || title.includes('battle pass') || title.includes('duty') || title.includes('codm') || title.includes('warzone');
+                        
+                        // بررسی حضور کلمات کلیدی نسخه موبایل
+                        const isMobile = title.includes('mobile') || desc.includes('mobile') || title.includes('codm') || desc.includes('codm');
+                        // بررسی حضور کلمات سیزن و اخبار کالاف
+                        const isCallOfDuty = title.includes('duty') || title.includes('season') || title.includes('leak') || title.includes('update');
+                        
+                        return isMobile && isCallOfDuty;
                     });
 
-                    if (seasonFilter.length === 0) {
+                    let uniqueFilter = [];
+                    let seenTitles = new Set();
+                    mobileOnlyFilter.forEach(item => {
+                        if (!seenTitles.has(item.title)) {
+                            seenTitles.add(item.title);
+                            uniqueFilter.push(item);
+                        }
+                    });
+
+                    if (uniqueFilter.length === 0) {
                         generateMultiFallback();
                         return;
                     }
@@ -141,8 +169,7 @@
                     loading.style.display = 'none';
                     wrapper.innerHTML = '';
 
-                    // نمایش تا سقف ۸ خبر داغ و بروز شده
-                    seasonFilter.slice(0, 8).forEach((item, index) => {
+                    uniqueFilter.slice(0, 8).forEach((item, index) => {
                         let imgUrl = item.enclosure?.link || item.thumbnail || "";
                         let imgHtml = "";
                         if (imgUrl && imgUrl.startsWith("http") && !imgUrl.includes("avatar") && !imgUrl.includes("ytimg")) {
@@ -151,12 +178,9 @@
 
                         let fullDesc = (item.description || "").replace(/<[^>]*>/g, '').trim();
                         let displayTitle = item.title;
-                        
-                        if (!displayTitle.toLowerCase().includes("season") && !displayTitle.toLowerCase().includes("cod")) {
-                            displayTitle = "CODM Intel: " + displayTitle;
-                        }
 
                         const timeAgo = getRelativeTime(item.pubDate);
+                        const sourceLink = item.link; 
 
                         const card = document.createElement('div');
                         card.className = 'news-card';
@@ -164,7 +188,7 @@
                             ${imgHtml}
                             <div class="news-content">
                                 <div class="news-meta">
-                                    <span>NEW SEASON UPDATE 🔴</span>
+                                    <span>CODM MOBILE ONLY 📱</span>
                                     <span class="time-badge">⏱️ ${timeAgo}</span>
                                 </div>
                                 <h3 id="title-${index}">${displayTitle}</h3>
@@ -172,7 +196,10 @@
                                     <p id="desc-${index}">${fullDesc}</p>
                                 </div>
                                 
-                                <button class="translate-btn" onclick="translateNews(${index})">ترجمه به فارسی 🔄</button>
+                                <div class="actions-box">
+                                    <button class="translate-btn" onclick="translateNews(${index})">ترجمه به فارسی 🔄</button>
+                                    <a href="${sourceLink}" target="_blank" class="source-btn">مشاهده منبع اصلی خبر 🌐</a>
+                                </div>
                                 <div class="translated-box" id="trans-box-${index}">در حال ترجمه هوشمند...</div>
                             </div>
                         `;
@@ -222,11 +249,13 @@
             const localNews = [
                 {
                     title: "Call of Duty Mobile New Season Patch Notes: Full Battle Pass Rewards & Major Weapon Meta Balancing",
-                    desc: "The upcoming Call of Duty Mobile seasonal update is officially confirmed. This major patch focuses heavily on the new Season Battle Pass rewards, introducing four epic operator skins and tiered weapon blueprints."
+                    desc: "The upcoming Call of Duty Mobile seasonal update is officially confirmed. This major patch focuses heavily on the new Season Battle Pass rewards.",
+                    link: "https://www.gamespot.com"
                 },
                 {
                     title: "CODM New Season Leaks: Mythic Weapon Draw Revealed With Custom Inspection Details",
-                    desc: "Leakers have just uncovered the complete asset list for the next legendary and mythic weapon draws coming in the new season. The headline mythic blueprint features an evolving futuristic chassis."
+                    desc: "Leakers have just uncovered the complete asset list for the next legendary and mythic weapon draws coming in the new season.",
+                    link: "https://www.eurogamer.net"
                 }
             ];
 
@@ -241,7 +270,10 @@
                         <div class="news-text-box">
                             <p id="desc-f${idx}">${news.desc}</p>
                         </div>
-                        <button class="translate-btn" onclick="translateNews('f${idx}')">ترجمه به فارسی 🔄</button>
+                        <div class="actions-box">
+                            <button class="translate-btn" onclick="translateNews('f${idx}')">ترجمه به فارسی 🔄</button>
+                            <a href="${news.link}" target="_blank" class="source-btn">مشاهده منبع اصلی خبر 🌐</a>
+                        </div>
                         <div class="translated-box" id="trans-box-f${idx}"></div>
                     </div>
                 </div>
@@ -250,7 +282,7 @@
             });
         }
 
-        window.addEventListener('DOMContentLoaded', () => fetchCODMSeasonNews());
+        window.addEventListener('DOMContentLoaded', () => fetchStrictCODMNews());
     </script>
 </body>
 </html>
