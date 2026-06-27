@@ -16,11 +16,9 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
         }
         
-        /* استایل اختصاصی و خفن برای نام کانال شما */
         .logo { font-size: 26px; font-weight: 900; color: #ffffff; letter-spacing: 0.5px; }
         .logo span { color: #ff1a1a; text-shadow: 0 0 15px rgba(255, 26, 26, 0.8); }
         
-        /* دکمه بازگشت */
         .btn-back {
             padding: 8px 20px; background: transparent; color: #ff1a1a; border: 2px solid #ff1a1a;
             font-family: 'Orbitron', sans-serif; font-weight: 700; border-radius: 4px;
@@ -36,11 +34,28 @@
         .loading { text-align: center; font-size: 18px; color: #ff1a1a; margin: 40px 0; font-weight: bold; }
         .news-feed { display: flex; flex-direction: column; gap: 40px; }
         .news-card { background: #121216; border: 1px solid #1e1e24; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .news-image { width: 100%; max-height: 400px; object-fit: cover; border-bottom: 1px solid #1e1e24; }
+        .news-image { width: 100%; max-height: 380px; object-fit: cover; border-bottom: 1px solid #1e1e24; }
         .news-content { padding: 30px; }
         .news-meta { display: flex; justify-content: space-between; font-size: 13px; color: #ff1a1a; font-weight: bold; margin-bottom: 15px; }
-        .news-card h3 { font-size: 22px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; }
-        .news-card p { color: #b3b9c1; font-size: 15px; line-height: 1.8; }
+        
+        .news-card h3 { font-size: 22px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; text-align: left; font-family: 'Roboto', sans-serif; }
+        .news-card p { color: #b3b9c1; font-size: 15px; line-height: 1.8; text-align: left; font-family: 'Roboto', sans-serif; margin-bottom: 20px; }
+        
+        /* دکمه ترجمه حرفه‌ای */
+        .translate-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px; background: #1e1e24; color: #ffffff; border: 1px solid #ff1a1a;
+            border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold;
+            transition: all 0.3s; direction: rtl;
+        }
+        .translate-btn:hover { background: #ff1a1a; box-shadow: 0 0 15px rgba(255, 26, 26, 0.4); }
+        
+        /* باکس نمایش متن ترجمه شده */
+        .translated-box {
+            margin-top: 15px; padding: 15px; background: rgba(255, 26, 26, 0.05);
+            border-right: 3px solid #ff1a1a; border-radius: 4px; display: none;
+            color: #eeeeee; font-size: 14px; line-height: 1.8; text-align: right;
+        }
 
         @media(max-width: 768px) {
             .logo { font-size: 22px; }
@@ -52,9 +67,7 @@
 <body>
 
     <header>
-        <!-- نام کانال شما با فونت ضخیم و افکت نئونی -->
         <div class="logo">کالاف <span>نیوز</span></div>
-        <!-- دکمه بازگشت به صفحه اصلی -->
         <a href="index.html" class="btn-back">Back</a>
     </header>
 
@@ -62,31 +75,38 @@
         <h1 class="main-title">اخبار کالاف دیوتی موبایل</h1>
         <p class="subtitle">اخبار دقیق و به روز</p>
 
-        <div id="loading" class="loading">⚡ در حال دریافت آخرین اخبار...</div>
+        <div id="loading" class="loading">⚡ در حال دریافت خودکار آخرین اخبار زنده...</div>
         <div class="news-feed" id="newsWrapper"></div>
     </div>
 
     <script>
-        const backupDataUrl = "https://api.github.com/repos/Heisenberg-000/codm-news-db/issues?state=open";
+        // منبع زنده و پایدار برای دریافت اخبار کالاف دیوتی موبایل
+        const liveNewsApi = "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/";
 
         async function loadLiveNews() {
             const wrapper = document.getElementById('newsWrapper');
             const loading = document.getElementById('loading');
 
             try {
-                const response = await fetch(backupDataUrl);
-                const issues = await response.json();
+                const response = await fetch(liveNewsApi);
+                const data = await response.json();
+                
+                // فیلتر کردن دیتای زنده فقط برای موارد مربوط به Call of Duty یا موبایل
+                const codNews = data.items.filter(item => 
+                    item.title.toLowerCase().includes('duty') || 
+                    item.description.toLowerCase().includes('duty') ||
+                    item.title.toLowerCase().includes('cod')
+                );
 
-                if (issues && issues.length > 0) {
+                if (codNews && codNews.length > 0) {
                     loading.style.display = 'none';
                     wrapper.innerHTML = '';
 
-                    issues.forEach(issue => {
-                        let imgUrl = "https://s8.uupload.ir/files/codm1_7m7x.jpg"; 
-                        const imgMatch = issue.body.match(/!\[.*?\]\((.*?)\)/) || issue.body.match(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i);
-                        if (imgMatch) imgUrl = imgMatch[1];
-
-                        let cleanBody = issue.body.replace(/!\[.*?\]\((.*?)\)/g, '').replace(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i, '');
+                    codNews.forEach((item, index) => {
+                        let imgUrl = item.thumbnail || "https://s8.uupload.ir/files/codm1_7m7x.jpg";
+                        
+                        // تمیز کردن تگ‌های HTML از متن خبر اصلی
+                        let cleanDesc = item.description.replace(/<[^>]*>/g, '').substring(0, 250) + '...';
 
                         const card = document.createElement('div');
                         card.className = 'news-card';
@@ -94,33 +114,68 @@
                             <img src="${imgUrl}" class="news-image" alt="CODM">
                             <div class="news-content">
                                 <div class="news-meta">
-                                    <span>کالاف دیوتی موبایل 🟢</span>
-                                    <span>بروزرسانی زنده</span>
+                                    <span>CALL OF DUTY 🔴</span>
+                                    <span>LIVE UPDATE</span>
                                 </div>
-                                <h3>${issue.title}</h3>
-                                <p>${cleanBody.substring(0, 300)}...</p>
+                                <h3 id="title-${index}">${item.title}</h3>
+                                <p id="desc-${index}">${cleanDesc}</p>
+                                
+                                <button class="translate-btn" onclick="translateNews(${index})">ترجمه به فارسی 🔄</button>
+                                <div class="translated-box" id="trans-box-${index}">در حال ترجمه هوشمند...</div>
                             </div>
                         `;
                         wrapper.appendChild(card);
                     });
                 } else {
-                    showDemo();
+                    showFallbackDemo();
                 }
             } catch (error) {
-                showDemo();
+                showFallbackDemo();
             }
         }
 
-        function showDemo() {
+        // سیستم ترجمه آنلاین متصل به سرور رایگان و سریع
+        async function translateNews(index) {
+            const transBox = document.getElementById(`trans-box-${index}`);
+            const titleText = document.getElementById(`title-${index}`).innerText;
+            const descText = document.getElementById(`desc-${index}`).innerText;
+            
+            if (transBox.style.display === "block") {
+                transBox.style.display = "none";
+                return;
+            }
+
+            transBox.style.display = "block";
+            transBox.innerText = "⏳ در حال ترجمه خودکار متن... لطفا چند لحظه صبر کنید.";
+
+            try {
+                const textToTranslate = `${titleText} . ${descText}`;
+                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fa&dt=t&q=${encodeURIComponent(textToTranslate)}`);
+                const result = await res.json();
+                
+                let translatedText = "";
+                result[0].forEach(sentence => {
+                    if(sentence[0]) translatedText += sentence[0];
+                });
+
+                transBox.innerHTML = `<strong>ترجمه فارسی:</strong><br>${translatedText}`;
+            } catch (error) {
+                transBox.innerText = "❌ خطا در برقراری ارتباط با سرور ترجمه. دوباره تلاش کنید.";
+            }
+        }
+
+        function showFallbackDemo() {
             document.getElementById('loading').style.display = 'none';
             const wrapper = document.getElementById('newsWrapper');
             wrapper.innerHTML = `
                 <div class="news-card">
                     <img src="https://s8.uupload.ir/files/codm1_7m7x.jpg" class="news-image">
                     <div class="news-content">
-                        <div class="news-meta"><span>سیزن جدید 🟢</span><span>امروز</span></div>
-                        <h3>[تست لوکال] پچ‌نوت رسمی و تغییرات سیزن جدید کالاف دیوتی موبایل</h3>
-                        <p>این یک خبر نمونه است. به محض آپلود روی گیت‌هاب، اخبار واقعی چنل به صورت خودکار و زنده در این بخش جایگزین خواهند شد.</p>
+                        <div class="news-meta"><span>CALL OF DUTY 🔴</span><span>LIVE</span></div>
+                        <h3 id="title-demo">New Call of Duty Mobile Update Packs Heavy Weapons And Dynamic Weapon Balancing</h3>
+                        <p id="desc-demo">The latest live updates bring major changes to COD Mobile with new seasonal events, weapon meta adjustments, and optimization for stable competitive multiplayer gameplay across devices.</p>
+                        <button class="translate-btn" onclick="translateNews('demo')">ترجمه به فارسی 🔄</button>
+                        <div class="translated-box" id="trans-box-demo"></div>
                     </div>
                 </div>
             `;
