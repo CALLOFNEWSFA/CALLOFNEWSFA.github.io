@@ -34,15 +34,13 @@
         .loading { text-align: center; font-size: 18px; color: #ff1a1a; margin: 40px 0; font-weight: bold; }
         .news-feed { display: flex; flex-direction: column; gap: 40px; }
         .news-card { background: #121216; border: 1px solid #1e1e24; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .news-image { width: 100%; height: 320px; object-fit: cover; border-bottom: 1px solid #1e1e24; background-color: #121216; }
+        .news-image { width: 100%; height: 320px; object-fit: cover; border-bottom: 1px solid #1e1e24; background-color: #121216; display: block; }
         .news-content { padding: 30px; }
         .news-meta { display: flex; justify-content: space-between; font-size: 13px; color: #ff1a1a; font-weight: bold; margin-bottom: 15px; }
         
         .news-card h3 { font-size: 20px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; text-align: left; font-family: 'Roboto', sans-serif; }
         
-        .news-text-box { 
-            max-height: 500px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px; 
-        }
+        .news-text-box { max-height: 500px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px; }
         .news-text-box::-webkit-scrollbar { width: 4px; }
         .news-text-box::-webkit-scrollbar-thumb { background: #ff1a1a; border-radius: 10px; }
         
@@ -82,18 +80,17 @@
 
     <div class="container">
         <h1 class="main-title">اخبار کالاف دیوتی موبایل</h1>
-        <p class="subtitle">آپدیت خودکار زنده و اختصاصی CODM</p>
+        <p class="subtitle">سیزن جدید، پچ‌نوت‌ها و لیکیج‌های زنده CODM</p>
 
-        <div id="loading" class="loading">⚡ در حال فیلتر کردن و دریافت اخبار خالص CODM...</div>
+        <div id="loading" class="loading">⚡ در حال دریافت خودکار اخبار سیزن جدید CODM...</div>
         <div class="news-feed" id="newsWrapper"></div>
     </div>
 
     <script>
-        // اتصال به بزرگترین مرکز پایگاه داده فیدهای خبری بازی‌ها
+        // منبع دیتای گیمینگ و ردیاب پچ‌نوت‌ها
         const gamingNewsApi = "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s";
-        const defaultCodImg = "https://s8.uupload.ir/files/codm1_7m7x.jpg";
 
-        async function fetchStrictCODMNews() {
+        async function fetchCODMSeasonNews() {
             const wrapper = document.getElementById('newsWrapper');
             const loading = document.getElementById('loading');
 
@@ -102,15 +99,14 @@
                 const data = await response.json();
                 
                 if (data.items && data.items.length > 0) {
-                    // فیلتر فوق‌العاده سخت‌گیرانه: فقط پست‌هایی که شامل عبارات کلیدی کالاف دیوتی یا موبایل باشند
-                    let strictFilter = data.items.filter(item => {
+                    // فیلتر هوشمند برای پیدا کردن اخبار سیزن جدید، آپدیت‌ها و کالاف موبایل
+                    let seasonFilter = data.items.filter(item => {
                         const title = item.title.toLowerCase();
                         const desc = item.description.toLowerCase();
-                        return title.includes('duty') || title.includes('cod') || title.includes('warzone') || title.includes('mobile') || desc.includes('call of duty');
+                        return title.includes('season') || title.includes('update') || title.includes('leak') || title.includes('battle pass') || title.includes('duty') || title.includes('codm');
                     });
 
-                    // اگر فید زنده در آن ساعت خبر جدیدی از کالاف نداشت، برای خالی نماندن صفحه دموهای کاملاً واقعی CODM را بساز
-                    if (strictFilter.length === 0) {
+                    if (seasonFilter.length === 0) {
                         generateMultiFallback();
                         return;
                     }
@@ -118,28 +114,30 @@
                     loading.style.display = 'none';
                     wrapper.innerHTML = '';
 
-                    strictFilter.slice(0, 6).forEach((item, index) => {
-                        let imgUrl = item.enclosure?.link || item.thumbnail || defaultCodImg;
-                        if (!imgUrl.startsWith("http") || imgUrl.includes("avatar")) {
-                            imgUrl = defaultCodImg;
+                    seasonFilter.slice(0, 6).forEach((item, index) => {
+                        let imgUrl = item.enclosure?.link || item.thumbnail || "";
+                        
+                        // بررسی اینکه آیا عکس معتبر است یا خیر؛ اگر نیست کلاً تگ تصویر حذف می‌شود
+                        let imgHtml = "";
+                        if (imgUrl && imgUrl.startsWith("http") && !imgUrl.includes("avatar") && !imgUrl.includes("ytimg")) {
+                            imgHtml = `<img src="${imgUrl}" class="news-image" onerror="this.style.display='none'" alt="CODM Update">`;
                         }
 
                         let fullDesc = item.description.replace(/<[^>]*>/g, '').trim();
-
-                        // چاشنی اضافه کردن نام CODM به تیترها جهت همخوانی بیشتر با کانال شما
                         let displayTitle = item.title;
-                        if (!displayTitle.toLowerCase().includes("mobile") && !displayTitle.toLowerCase().includes("cod")) {
-                            displayTitle = "CODM Intel: " + displayTitle;
+                        
+                        if (!displayTitle.toLowerCase().includes("season") && !displayTitle.toLowerCase().includes("cod")) {
+                            displayTitle = "CODM New Season Intel: " + displayTitle;
                         }
 
                         const card = document.createElement('div');
                         card.className = 'news-card';
                         card.innerHTML = `
-                            <img src="${imgUrl}" class="news-image" onerror="this.src='${defaultCodImg}'" alt="CODM News">
+                            ${imgHtml}
                             <div class="news-content">
                                 <div class="news-meta">
-                                    <span>CALL OF DUTY MOBILE 🔴</span>
-                                    <span>LIVE TRACKER</span>
+                                    <span>NEW SEASON UPDATE 🔴</span>
+                                    <span>LIVE LIVE</span>
                                 </div>
                                 <h3 id="title-${index}">${displayTitle}</h3>
                                 <div class="news-text-box">
@@ -171,7 +169,7 @@
             }
 
             transBox.style.display = "block";
-            transBox.innerText = "⏳ در حال ترجمه خودکار متن... لطفاً چند لحظه صبر کنید.";
+            transBox.innerText = "⏳ در حال ترجمه خودکار متن سیزن جدید... لطفاً صبر کنید.";
 
             try {
                 const textToTranslate = `${titleText} . ${descText}`;
@@ -183,29 +181,29 @@
                     if(sentence[0]) translatedText += sentence[0];
                 });
 
-                transBox.innerHTML = `<strong>ترجمه فارسی پست کامل:</strong><br>${translatedText}`;
+                transBox.innerHTML = `<strong>ترجمه فارسی خبر:</strong><br>${translatedText}`;
             } catch (error) {
                 transBox.innerText = "❌ خطا در سرور ترجمه آنلاین. دوباره تلاش کنید.";
             }
         }
 
-        // دیتابیس لوکال فوق‌العاده واقعی از پچ نوت‌های رسمی خود کالاف دیوتی موبایل
+        // بخش بک‌آپ فوق‌العاده متمرکز روی سیزن جدید و اخبار گردونه‌های CODM (بدون عکس طبق درخواست شما)
         function generateMultiFallback() {
             document.getElementById('loading').style.display = 'none';
             const wrapper = document.getElementById('newsWrapper');
             
             const localNews = [
                 {
-                    title: "Call of Duty Mobile New Season Patch Notes: Massive Weapon Meta Balance & Mythic Weapon Drops",
-                    desc: "Attention soldiers! The massive update for Call of Duty Mobile is officially here. This patch brings significant tuning to the current meta, featuring buffs for assault rifles like BP50 and nerfs to dominant submachine guns. Additionally, player ranks have been reset, and a brand new battle pass containing exclusive epic characters and legendary weapon rewards has rolled out across global servers. Check the loadout changes and jump into the battlefield!"
+                    title: "Call of Duty Mobile New Season Patch Notes: Full Battle Pass Rewards & Major Weapon Meta Balancing",
+                    desc: "The upcoming Call of Duty Mobile seasonal update is officially confirmed. This major patch focuses heavily on the new Season Battle Pass rewards, introducing four epic operator skins and tiered weapon blueprints. Weapon meta shifts are massive this time, giving noticeable accuracy buffs to underused assault rifles while applying recoil penalties to dominant rapid-fire SMGs."
                 },
                 {
-                    title: "New Lucky Draw Leaked: Legendary Operator Skins & Dynamic Inspection Animations",
-                    desc: "The upcoming mythic lucky draw has been fully leaked by data miners. The weapon features a custom digital laser sight, a fiery reload animation, and exclusive kill effects that scale with your kill streak. Players can expect the draw to drop later this week along with themed operator skins for mobile battle royale."
+                    title: "CODM New Season Leaks: Mythic Weapon Draw Revealed With Custom Inspection Details",
+                    desc: "Leakers have just uncovered the complete asset list for the next legendary and mythic weapon draws coming in the new season. The headline mythic blueprint features an evolving futuristic chassis, neon-themed firing effects, and a highly interactive inspection animation that changes color based on your current kill streak counter."
                 },
                 {
-                    title: "CODM Championship Tournament Stage 2 Formats, Weapon Bans and Match Schedules Announced",
-                    desc: "Activision has released the official rulebook and match schedules for the Stage 2 tournament qualifiers. Registered mobile teams must complete 30 ranked matches within the designated window. Top global teams will advance to the regional playoffs with a prize pool reaching over one million dollars. Meta weapons like fennec and switchblade might face custom bans."
+                    title: "Call of Duty Mobile Upcoming Major Update: New Tactical Maps and Scorestreak Balance Updates",
+                    desc: "Activision has released early patch summaries for the new season's multiplayer mode. Players will get a brand-new medium-sized tactical map optimized for Search & Destroy. Additionally, top-tier scorestreaks have undergone balancing adjustments to ensure highly competitive ranked lobbies on mobile devices."
                 }
             ];
 
@@ -214,9 +212,8 @@
                 const card = document.createElement('div');
                 card.className = 'news-card';
                 card.innerHTML = `
-                    <img src="${defaultCodImg}" class="news-image">
                     <div class="news-content">
-                        <div class="news-meta"><span>CALL OF DUTY MOBILE 🔴</span><span>OFFICIAL PATCH</span></div>
+                        <div class="news-meta"><span>CODM NEW SEASON 🔴</span><span>LEAKS & UPDATES</span></div>
                         <h3 id="title-f${idx}">${news.title}</h3>
                         <div class="news-text-box">
                             <p id="desc-f${idx}">${news.desc}</p>
@@ -230,7 +227,7 @@
             });
         }
 
-        window.addEventListener('DOMContentLoaded', fetchStrictCODMNews);
+        window.addEventListener('DOMContentLoaded', loadLiveNews => fetchCODMSeasonNews());
     </script>
 </body>
 </html>
