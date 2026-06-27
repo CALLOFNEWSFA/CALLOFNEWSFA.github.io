@@ -3,181 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Loadout</title>
 
-<title>Attachments</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@600&family=Vazirmatn&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Vazirmatn&display=swap" rel="stylesheet">
 
 <style>
-body{
-  margin:0;
-  background:#0b0f14;
-  color:white;
-  font-family:'Vazirmatn';
-}
+body{margin:0;background:#0b0b0b;color:#fff;font-family:'Vazirmatn';}
 
 /* هدر */
 .header{
-  padding:20px;
-  font-family:'Orbitron';
-  font-size:28px;
-  border-bottom:1px solid #222;
-}
-
-/* کنترل‌ها */
-.controls{
-  display:flex;
-  gap:10px;
-  padding:15px;
-}
-
-/* سرچ */
-.search{
-  flex:1;
-  padding:10px;
-  background:#111;
-  border:1px solid #333;
-  color:white;
-}
-
-/* فیلتر */
-.select{
-  padding:10px;
-  background:#111;
-  border:1px solid #333;
-  color:white;
+text-align:center;
+padding:12px;
+background:#111;
+color:red;
+font-family:'Orbitron';
 }
 
 /* لیست */
-.list{
-  padding:20px;
+.box{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+padding:10px;
 }
 
-/* آیتم */
 .item{
-  padding:15px;
-  margin-bottom:10px;
-  background:#111;
-  border-left:4px solid transparent;
-  cursor:pointer;
-  transition:0.3s;
-  display:flex;
-  justify-content:space-between;
+background:#111;
+margin:6px;
+padding:10px 14px;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+transition:0.3s;
+}
+.item:hover{background:#1a1a1a;}
+.active{background:red !important;}
+
+/* پنل */
+.panel{
+margin:15px;
+padding:15px;
+background:#111;
+border-radius:10px;
 }
 
-.item:hover{
-  background:#161b22;
-  border-left:4px solid #ff0033;
-  box-shadow:0 0 10px #ff0033;
-  transform:translateX(5px);
+/* اتچمنت */
+.attach{
+background:#1a1a1a;
+margin:5px 0;
+padding:6px;
+border-radius:6px;
+font-size:13px;
 }
 
-/* متن */
-.name{
-  font-family:'Rajdhani';
+/* استت */
+.bar{
+height:6px;
+background:#222;
+border-radius:5px;
+margin:4px 0;
 }
-.type{
-  opacity:0.6;
+.fill{
+height:100%;
+background:red;
 }
 
-/* بک */
-.back{
-  position:fixed;
-  top:10px;
-  right:10px;
-  background:#ff0033;
-  border:none;
-  color:white;
-  padding:10px 15px;
-  cursor:pointer;
+/* مود */
+.mode{
+text-align:center;
+margin-top:10px;
 }
+.mode button{
+margin:5px;
+padding:6px 12px;
+border:none;
+background:#222;
+color:#fff;
+border-radius:6px;
+cursor:pointer;
+}
+.mode button.active{background:red;}
 </style>
-
 </head>
 
 <body>
 
-<button class="back" onclick="goBack()">بازگشت</button>
+<div class="header">🔥 COD LOADOUT SYSTEM</div>
 
-<div class="header">ATTACHMENTS</div>
+<div id="categories" class="box"></div>
+<div id="guns" class="box"></div>
 
-<div class="controls">
-  <input type="text" id="search" class="search" placeholder="جستجو...">
-  
-  <select id="filter" class="select">
-    <option value="all">همه</option>
-    <option value="Optic">Optic</option>
-    <option value="Muzzle">Muzzle</option>
-    <option value="Magazine">Magazine</option>
-    <option value="Laser">Laser</option>
-    <option value="Underbarrel">Underbarrel</option>
-  </select>
+<div class="mode" id="modeBox" style="display:none;">
+<button onclick="selectMode('MP')">MP</button>
+<button onclick="selectMode('BR')">BR</button>
 </div>
 
-<div class="list" id="list">
-
-  <div class="item" data-type="Optic">
-    <div class="name">Red Dot Sight</div>
-    <div class="type">Optic</div>
-  </div>
-
-  <div class="item" data-type="Optic">
-    <div class="name">Holographic Sight</div>
-    <div class="type">Optic</div>
-  </div>
-
-  <div class="item" data-type="Muzzle">
-    <div class="name">Silencer</div>
-    <div class="type">Muzzle</div>
-  </div>
-
-  <div class="item" data-type="Magazine">
-    <div class="name">Extended Magazine</div>
-    <div class="type">Magazine</div>
-  </div>
-
-  <div class="item" data-type="Laser">
-    <div class="name">Laser</div>
-    <div class="type">Laser</div>
-  </div>
-
-  <div class="item" data-type="Underbarrel">
-    <div class="name">Foregrip</div>
-    <div class="type">Underbarrel</div>
-  </div>
-
-</div>
+<div class="panel" id="panel">یک دسته انتخاب کن 👆</div>
 
 <script>
-const searchInput = document.getElementById("search");
-const filterSelect = document.getElementById("filter");
-const items = document.querySelectorAll(".item");
 
-function update(){
-  const search = searchInput.value.toLowerCase();
-  const filter = filterSelect.value;
+/* دیتا */
+const data={
+AR:{
+"AK-47":{
+MP:{
+stats:{damage:80,accuracy:60,range:65,control:55},
+att:[
+"Muzzle: OWC Light Compensator",
+"Barrel: Ranger",
+"Laser: Tactical",
+"Stock: No Stock",
+"Mag: Extended"
+]},
+BR:{
+stats:{damage:90,accuracy:65,range:85,control:60},
+att:[
+"Muzzle: Monolithic Suppressor",
+"Barrel: Marksman",
+"Scope: 3x Tactical",
+"Grip: Ranger",
+"Mag: Extended B"
+]}
+},
 
-  items.forEach(item=>{
-    const name = item.innerText.toLowerCase();
-    const type = item.getAttribute("data-type");
+"M4":{
+MP:{
+stats:{damage:65,accuracy:70,range:60,control:70},
+att:[
+"Muzzle: RTC Brake",
+"Barrel: Marksman",
+"Stock: Strike",
+"Laser: Tactical",
+"Mag: 50 Round"
+]},
+BR:{
+stats:{damage:70,accuracy:75,range:80,control:75},
+att:[
+"Muzzle: Suppressor",
+"Barrel: Long",
+"Scope: 3x",
+"Grip: Tactical",
+"Mag: Extended"
+]}
+}
+},
 
-    const matchSearch = name.includes(search);
-    const matchFilter = filter === "all" || type === filter;
+SMG:{
+"QQ9":{
+MP:{
+stats:{damage:75,accuracy:55,range:45,control:50},
+att:[
+"Muzzle: Suppressor",
+"Barrel: Recon",
+"Stock: No Stock",
+"Laser: Tactical",
+"Mag: 45 Round"
+]},
+BR:{
+stats:{damage:80,accuracy:60,range:55,control:55},
+att:[
+"Muzzle: Mono",
+"Barrel: Extended",
+"Scope: Red Dot",
+"Grip: Light",
+"Mag: Extended"
+]}
+}
+}
+};
 
-    if(matchSearch && matchFilter){
-      item.style.display = "flex";
-    }else{
-      item.style.display = "none";
-    }
-  });
+let currentCategory=null;
+let currentGun=null;
+
+/* دسته‌ها */
+function renderCategories(){
+const c=document.getElementById("categories");
+c.innerHTML="";
+
+Object.keys(data).forEach(cat=>{
+let d=document.createElement("div");
+d.className="item";
+d.innerText=cat;
+d.onclick=()=>{
+currentCategory=cat;
+currentGun=null;
+document.getElementById("modeBox").style.display="none";
+renderGuns();
+};
+c.appendChild(d);
+});
 }
 
-searchInput.addEventListener("input", update);
-filterSelect.addEventListener("change", update);
+/* گان‌ها */
+function renderGuns(){
+const g=document.getElementById("guns");
+g.innerHTML="";
 
-function goBack(){
-  window.location.href = "index.html";
+Object.keys(data[currentCategory]).forEach(gun=>{
+let d=document.createElement("div");
+d.className="item";
+d.innerText=gun;
+d.onclick=()=>{
+currentGun=gun;
+document.getElementById("modeBox").style.display="block";
+document.getElementById("panel").innerHTML="مود رو انتخاب کن 👇";
+};
+g.appendChild(d);
+});
 }
+
+/* مود */
+function selectMode(mode){
+const gun=data[currentCategory][currentGun][mode];
+
+let html=`<b>${currentGun} - ${mode}</b>`;
+
+/* استت */
+Object.keys(gun.stats).forEach(s=>{
+html+=`
+<div>${s}
+<div class="bar">
+<div class="fill" style="width:${gun.stats[s]}%"></div>
+</div>
+</div>`;
+});
+
+/* اتچمنت */
+gun.att.forEach(a=>{
+html+=`<div class="attach">${a}</div>`;
+});
+
+document.getElementById("panel").innerHTML=html;
+
+/* اکتیو */
+document.querySelectorAll(".mode button").forEach(b=>b.classList.remove("active"));
+event.target.classList.add("active");
+}
+
+/* اجرا */
+renderCategories();
+
 </script>
 
 </body>
