@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اخبار زنده کالاف دیوتی موبایل</title>
+    <title>اخبار کالاف دیوتی موبایل</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght=700;900&family=Vazirmatn:wght=400;700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; }
-        body { background-color: #0b0b0e; color: #eeeeee; background-image: radial-gradient(circle at 50% 20%, #1f1414 0%, #0b0b0e 60%); }
+        body { background-color: #0b0b0e; color: #eeeeee; background-image: radial-gradient(circle at 50% 20%, #1f1414 0%, #0b0b0e 60%); padding-bottom: 60px; }
         
         header { 
             position: fixed; top: 0; left: 0; width: 100%; padding: 20px 6%; 
@@ -31,7 +31,6 @@
         .main-title { text-align: center; font-size: 26px; font-weight: 700; margin-bottom: 12px; color: #ffffff; }
         .subtitle { text-align: center; color: #ff1a1a; font-size: 15px; margin-bottom: 50px; font-weight: bold; }
         
-        .loading { text-align: center; font-size: 18px; color: #ff1a1a; margin: 40px 0; font-weight: bold; }
         .news-feed { display: flex; flex-direction: column; gap: 40px; }
         .news-card { background: #121216; border: 1px solid #1e1e24; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .news-image { width: 100%; height: 320px; object-fit: cover; border-bottom: 1px solid #1e1e24; background-color: #121216; display: block; }
@@ -40,23 +39,15 @@
         
         .time-badge { background: rgba(255, 217, 0, 0.1); color: #ffd900; padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255, 217, 0, 0.3); font-size: 12px; }
 
-        .news-card h3 { font-size: 20px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; text-align: left; font-family: 'Roboto', sans-serif; }
+        .news-card h3 { font-size: 22px; color: #ffffff; margin-bottom: 15px; line-height: 1.6; text-align: right; font-weight: 700; }
         
-        .news-text-box { max-height: 500px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px; }
+        .news-text-box { max-height: 500px; overflow-y: auto; padding-left: 5px; margin-bottom: 20px; }
         .news-text-box::-webkit-scrollbar { width: 4px; }
         .news-text-box::-webkit-scrollbar-thumb { background: #ff1a1a; border-radius: 10px; }
         
-        .news-card p { color: #b3b9c1; font-size: 14px; line-height: 1.8; text-align: left; font-family: 'Roboto', sans-serif; }
+        .news-card p { color: #b3b9c1; font-size: 15px; line-height: 1.8; text-align: justify; white-space: pre-line; }
         
         .actions-box { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 15px; }
-
-        .translate-btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 20px; background: #1e1e24; color: #ffffff; border: 1px solid #ff1a1a;
-            border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold;
-            transition: all 0.3s; direction: rtl;
-        }
-        .translate-btn:hover { background: #ff1a1a; box-shadow: 0 0 15px rgba(255, 26, 26, 0.4); }
         
         .source-btn {
             display: inline-flex; align-items: center; gap: 8px;
@@ -66,20 +57,24 @@
         }
         .source-btn:hover { background: #3a3a44; color: #fff; }
 
-        .translated-box {
-            margin-top: 15px; padding: 15px; background: rgba(255, 26, 26, 0.05);
-            border-right: 3px solid #ff1a1a; border-radius: 4px; display: none;
-            color: #eeeeee; font-size: 14px; line-height: 1.8; text-align: right;
-            max-height: 500px; overflow-y: auto;
-        }
-        .translated-box::-webkit-scrollbar { width: 4px; }
-        .translated-box::-webkit-scrollbar-thumb { background: #ffffff; border-radius: 10px; }
+        /* ==========================================
+           استایل پنل مدیریت ادمین (مخفی در حالت عادی)
+           ========================================== */
+        .admin-trigger { position: fixed; bottom: 15px; left: 15px; background: #ff1a1a; color: white; width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; font-weight: bold; font-size: 18px; box-shadow: 0 0 15px #ff1a1a; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .admin-panel { display: none; position: fixed; bottom: 70px; left: 15px; width: 340px; background: #121216; border: 2px solid #ff1a1a; border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); z-index: 2000; direction: rtl; }
+        .admin-panel h4 { color: #fff; margin-bottom: 12px; font-size: 16px; border-bottom: 1px solid #ff1a1a; padding-bottom: 5px; }
+        .admin-panel input, .admin-panel textarea { width: 100%; background: #1e1e24; border: 1px solid #3a3a44; color: #fff; padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 13px; }
+        .admin-panel textarea { height: 80px; resize: none; }
+        .admin-panel button { width: 100%; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .btn-publish { background: #ff1a1a; color: #fff; margin-bottom: 8px; }
+        .btn-publish:hover { background: #cc0000; }
 
         @media(max-width: 768px) {
             .logo { font-size: 22px; }
             .btn-back { padding: 6px 14px; font-size: 12px; }
             .main-title { font-size: 22px; }
             .news-image { height: 200px; }
+            .admin-panel { width: calc(100% - 30px); left: 15px; bottom: 70px; }
         }
     </style>
 </head>
@@ -92,197 +87,115 @@
 
     <div class="container">
         <h1 class="main-title">اخبار کالاف دیوتی موبایل</h1>
-        <p class="subtitle">منحصراً اخبار سیزن جدید، لیکیج‌ها و پچ‌نوت‌های هوشمند CODM</p>
+        <p class="subtitle">پوشش اختصاصی سیزن جدید، لیکیج‌ها و گردونه‌ها توسط تیم کالاف نیوز</p>
 
-        <div id="loading" class="loading">⚡ در حال فیلتر کردن و استخراج اختصاصی اخبار Call of Duty Mobile...</div>
-        <div class="news-feed" id="newsWrapper"></div>
+        <!-- بخش فید اصلی اخبار -->
+        <div class="news-feed" id="newsWrapper">
+            <!-- دیتا بیس اخبار شما به صورت فیزیکی اینجا رندر می‌شود -->
+            <!-- مخزن اخبار شروع -->
+
+            <div class="news-card">
+                <img src="https://via.placeholder.com/800x320" class="news-image" onerror="this.style.display='none'" alt="خوش آمدید">
+                <div class="news-content">
+                    <div class="news-meta">
+                        <span>CODM NEWS 📱</span>
+                        <span class="time-badge">⏱️ همین حالا</span>
+                    </div>
+                    <h3>به بخش اخبار کالاف نیوز خوش آمدید!</h3>
+                    <div class="news-text-box">
+                        <p>اولین خبر خود را با زدن روی دکمه سرخ پلاس (+) در پایین سمت چپ صفحه ارسال کنید.</p>
+                    </div>
+                    <div class="actions-box">
+                        <a href="https://t.me/your_channel" target="_blank" class="source-btn">مشاهده کانال تلگرام 🌐</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- مخزن اخبار پایان -->
+        </div>
+    </div>
+
+    <!-- دکمه ورود به پنل ادمین مخفی -->
+    <button class="admin-trigger" onclick="toggleAdminPanel()">+</button>
+
+    <!-- کادر فرم نویسنده خبر -->
+    <div class="admin-panel" id="adminPanel">
+        <h4>✍️ ارسال خبر جدید به کالاف نیوز</h4>
+        <input type="text" id="postTitle" placeholder="تیتر خبر را بنویس...">
+        <textarea id="postDesc" placeholder="توضیحات و متن خبر را کامل اینجا بنویس..."></textarea>
+        <input type="text" id="postImage" placeholder="لینک عکس (آدرس تصویر)...">
+        <input type="text" id="postTime" placeholder="زمان (مثلا: ۵ دقیقه پیش)">
+        <input type="text" id="postSource" placeholder="لینک منبع یا کانال شما (اختیاری)">
+        
+        <button class="btn-publish" onclick="generateNewFile()">۱. تایید و دانلود فایل نهایی 📥</button>
+        <p style="font-size: 11px; color: #b3b9c1; text-align: center; line-height: 1.4;">فایل دانلود شده را بدون تغییر نام، مستقیم در گیت‌هاب آپلود (Drag) کنید تا سایت همان لحظه آپدیت شود.</p>
     </div>
 
     <script>
-        const sources = [
-            "https://api.rss2json.com/v1/api.json?rss_url=https://www.gamespot.com/feeds/news/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-            "https://api.rss2json.com/v1/api.json?rss_url=https://www.eurogamer.net/feed/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-            "https://api.rss2json.com/v1/api.json?rss_url=https://rss.ign.com/ign/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-            "https://api.rss2json.com/v1/api.json?rss_url=https://www.pcgamer.com/rss/&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-            "https://api.rss2json.com/v1/api.json?rss_url=https://www.rockpapershotgun.com/feed/news&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s",
-            "https://api.rss2json.com/v1/api.json?rss_url=https://kotaku.com/rss&api_key=ypfbfmscuunqitxeyvjclg9uubl5qbeve92jox8s"
-        ];
-
-        function getRelativeTime(dateString) {
-            const now = new Date();
-            const postDate = new Date(dateString);
-            const diffInSeconds = Math.floor((now - postDate) / 1000);
-            
-            if (diffInSeconds < 60) return "همین الان";
-            const diffInMinutes = Math.floor(diffInSeconds / 60);
-            if (diffInMinutes < 60) return `${diffInMinutes} دقیقه پیش`;
-            const diffInHours = Math.floor(diffInMinutes / 60);
-            if (diffInHours < 24) return `${diffInHours} ساعت پیش`;
-            const diffInDays = Math.floor(diffInHours / 24);
-            if (diffInDays === 1) return "دیروز";
-            return `${diffInDays} روز پیش`;
+        // باز و بسته کردن پنل ادمین
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
 
-        async function fetchStrictCODMNews() {
-            const wrapper = document.getElementById('newsWrapper');
-            const loading = document.getElementById('loading');
+        // تولید کد جدید و دانلود فایل اصلاح شده به صورت خودکار
+        function generateNewFile() {
+            const title = document.getElementById('postTitle').value.trim();
+            const desc = document.getElementById('postDesc').value.trim();
+            const image = document.getElementById('postImage').value.trim();
+            const time = document.getElementById('postTime').value.trim() || "همین الان";
+            const source = document.getElementById('postSource').value.trim() || "#";
 
-            try {
-                const fetchPromises = sources.map(src => fetch(src).then(res => res.json()).catch(() => ({ items: [] })));
-                const results = await Promise.all(fetchPromises);
-                
-                let combinedItems = [];
-                results.forEach(data => {
-                    if (data.items) combinedItems = combinedItems.concat(data.items);
-                });
-
-                if (combinedItems.length > 0) {
-                    combinedItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-                    // فیلتر فوق‌العاده سخت‌گیرانه: حتما باید کلمه مربوط به نسخه موبایل در تیتر یا متن باشد
-                    let mobileOnlyFilter = combinedItems.filter(item => {
-                        const title = (item.title || "").toLowerCase();
-                        const desc = (item.description || "").toLowerCase();
-                        
-                        // بررسی حضور کلمات کلیدی نسخه موبایل
-                        const isMobile = title.includes('mobile') || desc.includes('mobile') || title.includes('codm') || desc.includes('codm');
-                        // بررسی حضور کلمات سیزن و اخبار کالاف
-                        const isCallOfDuty = title.includes('duty') || title.includes('season') || title.includes('leak') || title.includes('update');
-                        
-                        return isMobile && isCallOfDuty;
-                    });
-
-                    let uniqueFilter = [];
-                    let seenTitles = new Set();
-                    mobileOnlyFilter.forEach(item => {
-                        if (!seenTitles.has(item.title)) {
-                            seenTitles.add(item.title);
-                            uniqueFilter.push(item);
-                        }
-                    });
-
-                    if (uniqueFilter.length === 0) {
-                        generateMultiFallback();
-                        return;
-                    }
-
-                    loading.style.display = 'none';
-                    wrapper.innerHTML = '';
-
-                    uniqueFilter.slice(0, 8).forEach((item, index) => {
-                        let imgUrl = item.enclosure?.link || item.thumbnail || "";
-                        let imgHtml = "";
-                        if (imgUrl && imgUrl.startsWith("http") && !imgUrl.includes("avatar") && !imgUrl.includes("ytimg")) {
-                            imgHtml = `<img src="${imgUrl}" class="news-image" onerror="this.style.display='none'" alt="CODM Update">`;
-                        }
-
-                        let fullDesc = (item.description || "").replace(/<[^>]*>/g, '').trim();
-                        let displayTitle = item.title;
-
-                        const timeAgo = getRelativeTime(item.pubDate);
-                        const sourceLink = item.link; 
-
-                        const card = document.createElement('div');
-                        card.className = 'news-card';
-                        card.innerHTML = `
-                            ${imgHtml}
-                            <div class="news-content">
-                                <div class="news-meta">
-                                    <span>CODM MOBILE ONLY 📱</span>
-                                    <span class="time-badge">⏱️ ${timeAgo}</span>
-                                </div>
-                                <h3 id="title-${index}">${displayTitle}</h3>
-                                <div class="news-text-box">
-                                    <p id="desc-${index}">${fullDesc}</p>
-                                </div>
-                                
-                                <div class="actions-box">
-                                    <button class="translate-btn" onclick="translateNews(${index})">ترجمه به فارسی 🔄</button>
-                                    <a href="${sourceLink}" target="_blank" class="source-btn">مشاهده منبع اصلی خبر 🌐</a>
-                                </div>
-                                <div class="translated-box" id="trans-box-${index}">در حال ترجمه هوشمند...</div>
-                            </div>
-                        `;
-                        wrapper.appendChild(card);
-                    });
-                } else {
-                    generateMultiFallback();
-                }
-            } catch (error) {
-                generateMultiFallback();
-            }
-        }
-
-        async function translateNews(index) {
-            const transBox = document.getElementById(`trans-box-${index}`);
-            const titleText = document.getElementById(`title-${index}`).innerText;
-            const descText = document.getElementById(`desc-${index}`).innerText;
-            
-            if (transBox.style.display === "block") {
-                transBox.style.display = "none";
+            if (!title || !desc) {
+                alert("لطفاً حداقل تیتر و متن خبر را پر کنید!");
                 return;
             }
 
-            transBox.style.display = "block";
-            transBox.innerText = "⏳ در حال ترجمه خودکار متن سیزن جدید... لطفاً صبر کنید.";
-
-            try {
-                const textToTranslate = `${titleText} . ${descText}`;
-                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fa&dt=t&q=${encodeURIComponent(textToTranslate)}`);
-                const result = await res.json();
-                
-                let translatedText = "";
-                result[0].forEach(sentence => {
-                    if(sentence[0]) translatedText += sentence[0];
-                });
-
-                transBox.innerHTML = `<strong>ترجمه فارسی خبر:</strong><br>${translatedText}`;
-            } catch (error) {
-                transBox.innerText = "❌ خطا در سرور ترجمه آنلاین. دوباره تلاش کنید.";
+            // ساخت کادر HTML فیزیکی برای خبر جدید شما
+            let imgHtml = "";
+            if (image && image.startsWith("http")) {
+                imgHtml = `<img src="${image}" class="news-image" onerror="this.style.display='none'" alt="${title}">`;
             }
-        }
 
-        function generateMultiFallback() {
-            document.getElementById('loading').style.display = 'none';
-            const wrapper = document.getElementById('newsWrapper');
-            
-            const localNews = [
-                {
-                    title: "Call of Duty Mobile New Season Patch Notes: Full Battle Pass Rewards & Major Weapon Meta Balancing",
-                    desc: "The upcoming Call of Duty Mobile seasonal update is officially confirmed. This major patch focuses heavily on the new Season Battle Pass rewards.",
-                    link: "https://www.gamespot.com"
-                },
-                {
-                    title: "CODM New Season Leaks: Mythic Weapon Draw Revealed With Custom Inspection Details",
-                    desc: "Leakers have just uncovered the complete asset list for the next legendary and mythic weapon draws coming in the new season.",
-                    link: "https://www.eurogamer.net"
-                }
-            ];
-
-            wrapper.innerHTML = "";
-            localNews.forEach((news, idx) => {
-                const card = document.createElement('div');
-                card.className = 'news-card';
-                card.innerHTML = `
-                    <div class="news-content">
-                        <div class="news-meta"><span>CODM NEW SEASON 🔴</span><span class="time-badge">⏱️ همین امروز</span></div>
-                        <h3 id="title-f${idx}">${news.title}</h3>
-                        <div class="news-text-box">
-                            <p id="desc-f${idx}">${news.desc}</p>
-                        </div>
-                        <div class="actions-box">
-                            <button class="translate-btn" onclick="translateNews('f${idx}')">ترجمه به فارسی 🔄</button>
-                            <a href="${news.link}" target="_blank" class="source-btn">مشاهده منبع اصلی خبر 🌐</a>
-                        </div>
-                        <div class="translated-box" id="trans-box-f${idx}"></div>
+            const newCardHtml = `
+            <div class="news-card">
+                ${imgHtml}
+                <div class="news-content">
+                    <div class="news-meta">
+                        <span>CODM NEWS 📱</span>
+                        <span class="time-badge">⏱️ ${time}</span>
+                    </div>
+                    <h3>${title}</h3>
+                    <div class="news-text-box">
+                        <p>${desc}</p>
+                    </div>
+                    <div class="actions-box">
+                        <a href="${source}" target="_blank" class="source-btn">مشاهده منبع اصلی خبر 🌐</a>
                     </div>
                 </div>
-                `;
-                wrapper.appendChild(card);
-            });
-        }
+            </div>`;
 
-        window.addEventListener('DOMContentLoaded', () => fetchStrictCODMNews());
+            // خواندن کل ساختار فعلی همین فایل HTML
+            let currentFullHtml = document.documentElement.outerHTML;
+            
+            // پیدا کردن مارکر مخزن اخبار و تزریق پست جدید به بالاترین بخش لیست
+            const marker = '<!-- مخزن اخبار شروع -->';
+            const updatedHtml = currentFullHtml.replace(marker, marker + '\n' + newCardHtml);
+
+            // ایجاد فایل دانلودی نهایی با نام خود فایل
+            const finalDoc = "<!DOCTYPE html>\n<html lang=\"fa\" dir=\"rtl\">\n" + updatedHtml + "\n</html>";
+            const blob = new Blob([finalDoc], { type: "text/html;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "news.html";
+            link.click();
+
+            // فرم را خالی کن و پنل را ببند
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postDesc').value = '';
+            document.getElementById('postImage').value = '';
+            toggleAdminPanel();
+        }
     </script>
 </body>
 </html>
